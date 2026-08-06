@@ -33,6 +33,9 @@ SDK-specific behavior.
 | `BOT_DISPLAY_NAME` | No | Display name used in logs; defaults to `Support Agent` |
 | `PORT` | No | HTTP port; defaults to `3978` |
 
+Calls from the frontend to the backend use the Bot Framework user-assigned
+managed identity.
+
 ## Local development
 
 To chat in the browser with the same workflow as the original chatbot:

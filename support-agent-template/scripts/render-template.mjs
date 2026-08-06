@@ -174,10 +174,6 @@ function buildRuntimeSettings(config) {
     },
     backend: {
       AZURE_APPCONFIG_ENDPOINT: appConfigurationEndpoint,
-      AZURE_CLIENT_ID: outputBinding("backendIdentityClientId"),
-      APPLICATIONINSIGHTS_CONNECTION_STRING: outputBinding(
-        "applicationInsightsConnectionString",
-      ),
     },
   };
   if (config.teams.enabled) {
@@ -189,9 +185,6 @@ function buildRuntimeSettings(config) {
       BACKEND_BASE_URL: outputBinding("backendBaseUrl"),
       BACKEND_SCOPE: outputBinding("backendAudience"),
       USER_ASSIGNED_IDENTITY_CLIENT_ID: outputBinding("botClientId"),
-      APPLICATIONINSIGHTS_CONNECTION_STRING: outputBinding(
-        "applicationInsightsConnectionString",
-      ),
     };
   }
   return settings;
@@ -229,22 +222,10 @@ function buildLogicAppParameters(config) {
       teamsChannelIds: { value: config.teams.channelIds },
       backendBaseUrl: { value: outputBinding("backendBaseUrl") },
       backendAudience: { value: outputBinding("backendAudience") },
-      backendIdentityResourceId: {
-        value: outputBinding("backendIdentityResourceId"),
-      },
       frontendBaseUrl: { value: outputBinding("frontendBaseUrl") },
       frontendAudience: { value: outputBinding("botClientId") },
-      frontendIdentityResourceId: {
-        value: outputBinding("botIdentityResourceId"),
-      },
       teamsConnectionResourceId: {
         value: outputBinding("teamsConnectionResourceId"),
-      },
-      userAssignedIdentities: {
-        value: {
-          [outputBinding("backendIdentityResourceId")]: {},
-          [outputBinding("botIdentityResourceId")]: {},
-        },
       },
     },
   };
@@ -346,15 +327,6 @@ function buildResourceRequirements(config, enabledComponents) {
       ],
     },
     {
-      id: "monitoring",
-      kind: "application-monitoring",
-      requiredBy: config.teams.enabled
-        ? ["backend", "frontend"]
-        : ["backend"],
-      produces: ["applicationInsightsConnectionString"],
-      azureResourceTypes: ["Microsoft.Insights/components"],
-    },
-    {
       id: "agentCompute",
       kind: "container-host",
       requiredBy: ["agent"],
@@ -374,15 +346,14 @@ function buildResourceRequirements(config, enabledComponents) {
       containerPort: 8089,
       healthPath: "/ping",
       authentication: "managed-identity",
+      identity: "system-assigned",
       configuration: {
         runtimeSettings: runtimeSettings.backend,
       },
       produces: [
         "backendBaseUrl",
         "backendAudience",
-        "backendIdentityClientId",
         "backendIdentityPrincipalId",
-        "backendIdentityResourceId",
       ],
     },
   ];
@@ -397,6 +368,7 @@ function buildResourceRequirements(config, enabledComponents) {
         containerPort: 3978,
         healthPath: "/health",
         authentication: "bot-framework",
+        identity: "user-assigned",
         configuration: {
           runtimeSettings: runtimeSettings.frontend,
         },
@@ -443,6 +415,8 @@ function buildResourceRequirements(config, enabledComponents) {
         requiredBy: ["logic-app"],
         source: "components/logic-app/template.json",
         parameters: buildLogicAppParameters(config),
+        identity: "system-assigned",
+        produces: ["autoReplyIdentityPrincipalId"],
         azureResourceTypes: ["Microsoft.Logic/workflows"],
       },
     );

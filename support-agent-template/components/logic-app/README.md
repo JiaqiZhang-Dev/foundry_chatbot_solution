@@ -19,14 +19,9 @@ JavaScript, Azure SDK filtering, or Function App dependency.
 
 ## Authentication
 
-The Teams trigger uses an existing authorized Teams API connection. HTTP calls
-use user-assigned managed identities:
-
-- `backendIdentityResourceId` with `backendAudience` for backend APIs.
-- `frontendIdentityResourceId` with `frontendAudience` for the Bot Framework
-  endpoint.
-
-Both identities must also appear in `userAssignedIdentities`.
+The Teams trigger uses an existing authorized Teams API connection. The
+workflow's system-assigned identity authenticates HTTP calls to the backend and
+Bot Framework endpoint using their configured audiences.
 
 ## Deploy
 

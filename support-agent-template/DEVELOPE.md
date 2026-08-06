@@ -153,8 +153,8 @@ Keep them in the deployment workspace or secret store.
 
 - **App Configuration:** Seed
   `runtimeConfiguration.configuration.values`. Give both agent and backend
-  `AZURE_APPCONFIG_ENDPOINT`. Set backend `AZURE_CLIENT_ID` to its
-  user-assigned identity client ID. Do not set it for the hosted agent.
+  `AZURE_APPCONFIG_ENDPOINT`. The backend and Logic App use system-assigned
+  identities. The Teams frontend keeps its Bot Framework user-assigned MSI.
 - **Runtime settings:** Apply each compute resource's
   `configuration.runtimeSettings` to that component host.
 - **Agent instructions:** The generated instruction is copied to

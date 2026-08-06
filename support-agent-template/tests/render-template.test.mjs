@@ -96,9 +96,48 @@ test("renders all enabled component settings from one customer file", async () =
     appConfiguration.AI_FOUNDRY_PROJECT_ENDPOINT,
     "${output.foundryProjectEndpoint}",
   );
+  assert.equal(getResource(requirements, "monitoring"), undefined);
+  assert.equal(
+    getResource(requirements, "backendCompute").identity,
+    "system-assigned",
+  );
+  assert.equal(
+    getResource(requirements, "frontendCompute").identity,
+    "user-assigned",
+  );
+  assert.equal(
+    getResource(requirements, "autoReplyWorkflow").identity,
+    "system-assigned",
+  );
+  assert.equal(
+    getResource(requirements, "backendCompute").configuration.runtimeSettings
+      .AZURE_CLIENT_ID,
+    undefined,
+  );
+  assert.equal(
+    getResource(requirements, "frontendCompute").configuration.runtimeSettings
+      .USER_ASSIGNED_IDENTITY_CLIENT_ID,
+    "${output.botClientId}",
+  );
+  assert.equal(
+    getResource(requirements, "botIdentity").kind,
+    "bot-identity",
+  );
+  assert.deepEqual(
+    requirements.resources
+      .filter((resource) =>
+      resource.azureResourceTypes?.includes(
+        "Microsoft.ManagedIdentity/userAssignedIdentities",
+      ))
+      .map((resource) => resource.id),
+    ["botIdentity"],
+  );
   const logicApp = getResource(requirements, "autoReplyWorkflow").parameters;
   assert.equal(logicApp.parameters.logicAppName, undefined);
   assert.equal(logicApp.parameters.logicAppState, undefined);
+  assert.equal(logicApp.parameters.backendIdentityResourceId, undefined);
+  assert.equal(logicApp.parameters.frontendIdentityResourceId, undefined);
+  assert.equal(logicApp.parameters.userAssignedIdentities, undefined);
   assert.deepEqual(logicApp.parameters.teamsChannelIds.value, ["channel-id"]);
   assert.equal(
     logicApp.parameters.backendBaseUrl.value,
@@ -150,7 +189,7 @@ assistant:
     "${output.appConfigurationEndpoint}",
   );
   assert.ok(
-    !requirements.resources.some((resource) => resource.id === "botIdentity"),
+    !requirements.resources.some((resource) => resource.id === "botRegistration"),
   );
   assert.ok(
     !requirements.resources.some((resource) =>

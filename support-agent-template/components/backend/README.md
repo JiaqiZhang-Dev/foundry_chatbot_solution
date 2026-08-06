@@ -14,7 +14,7 @@ clients and an Azure AI Foundry hosted agent.
 | `POST` | `/message/intention` | Decide whether the Logic App should auto-reply |
 | `POST` | `/teams/activity/convert` | Convert a Graph Teams message into a Bot Framework activity |
 
-The backend retains conversation state, citation parsing, monitoring, and the
+The backend retains conversation state, citation parsing, and the
 Logic App expert-reply guard. Knowledge retrieval is owned by the hosted agent
 and its configured knowledge binding.
 

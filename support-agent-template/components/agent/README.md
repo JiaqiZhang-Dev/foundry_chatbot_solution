@@ -44,8 +44,7 @@ docker run --rm -p 8088:8088 `
 ```
 
 Azure credentials must be available through managed identity or the local
-Azure CLI context. In Foundry, the hosted agent uses its own runtime identity;
-do not set `AZURE_CLIENT_ID`.
+Azure CLI context. In Foundry, the hosted agent uses its own runtime identity.
 
 ## Web Search boundary
 

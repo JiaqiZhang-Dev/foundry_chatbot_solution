@@ -93,4 +93,9 @@ test("compiles public parameter values into a complete customer package", async 
     solution.resources.contract,
     "config/generated/resource-requirements.json",
   );
+  assert.ok(
+    !solution.resources.planned.some(
+      (resource) => resource.kind === "application-monitoring",
+    ),
+  );
 });

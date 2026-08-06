@@ -30,7 +30,7 @@ auto-reply also includes the Logic App.
 - Microsoft Teams direct conversations and mentions when Teams is enabled.
 - Selected-channel auto-reply with human-expert reply suppression when
   auto-reply is enabled.
-- Application telemetry and backend/frontend health endpoints.
+- Backend and frontend health endpoints.
 - Provisioner-neutral source and resource requirements for downstream
   deployment.
 

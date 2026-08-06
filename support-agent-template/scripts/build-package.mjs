@@ -80,12 +80,12 @@ function buildCapabilities(config) {
       description: "Classify whether a message should receive an automated response.",
     },
     {
-      id: "healthMonitoring",
-      name: "Health and telemetry",
+      id: "healthChecks",
+      name: "Health checks",
       providedBy: config.teams.enabled
         ? ["backend", "frontend"]
         : ["backend"],
-      description: "Expose health checks and emit application telemetry.",
+      description: "Expose backend and Teams bot health checks.",
     },
   ];
   if (config.assistant.webSearch.enabled) {

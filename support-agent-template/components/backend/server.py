@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import sys
-import time
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from uuid import uuid4
@@ -30,11 +29,6 @@ from services.intention_service import IntentionService
 from utils.azure_cosmosdb import close_cosmos_client
 from utils.azure_credential import close_credential
 from utils.azure_foundry import close_clients
-from utils.azure_monitor import (
-    configure_metrics,
-    record_chat_duration,
-    record_chat_request,
-)
 from utils.azure_storage import close_storage_client
 
 _request_id: ContextVar[str] = ContextVar("request_id", default="system")
@@ -59,7 +53,6 @@ def configure_logging() -> None:
 
 
 configure_logging()
-configure_metrics()
 logger = logging.getLogger(__name__)
 
 
@@ -99,14 +92,9 @@ async def ping():
 
 @app.post("/agent/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    record_chat_request()
-    started = time.perf_counter()
     try:
-        response = await chat_service.chat(request)
-        record_chat_duration(time.perf_counter() - started, success=True)
-        return response
+        return await chat_service.chat(request)
     except Exception:
-        record_chat_duration(time.perf_counter() - started, success=False)
         logger.exception("Chat request failed")
         raise
 

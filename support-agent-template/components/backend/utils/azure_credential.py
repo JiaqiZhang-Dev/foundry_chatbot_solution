@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import os
-
 from azure.core.credentials_async import AsyncTokenCredential
 from azure.identity.aio import DefaultAzureCredential
 
@@ -13,9 +11,7 @@ _credential: AsyncTokenCredential | None = None
 def get_credential() -> AsyncTokenCredential:
     global _credential
     if _credential is None:
-        _credential = DefaultAzureCredential(
-            managed_identity_client_id=os.environ.get("AZURE_CLIENT_ID")
-        )
+        _credential = DefaultAzureCredential()
     return _credential
 
 

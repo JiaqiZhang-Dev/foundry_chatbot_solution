@@ -48,12 +48,6 @@
         "description": "Entra application client ID exposed by the backend."
       }
     },
-    "backendIdentityResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "User-assigned managed identity used for backend calls."
-      }
-    },
     "frontendBaseUrl": {
       "type": "string",
       "metadata": {
@@ -66,22 +60,10 @@
         "description": "Bot application client ID used as the frontend audience."
       }
     },
-    "frontendIdentityResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "Bot user-assigned managed identity used to invoke the frontend."
-      }
-    },
     "teamsConnectionResourceId": {
       "type": "string",
       "metadata": {
         "description": "Resource ID of an authorized Microsoft Teams API connection."
-      }
-    },
-    "userAssignedIdentities": {
-      "type": "object",
-      "metadata": {
-        "description": "User-assigned identities attached to the Logic App."
       }
     }
   },
@@ -92,8 +74,7 @@
       "name": "[parameters('logicAppName')]",
       "location": "[parameters('location')]",
       "identity": {
-        "type": "SystemAssigned, UserAssigned",
-        "userAssignedIdentities": "[parameters('userAssignedIdentities')]"
+        "type": "SystemAssigned"
       },
       "properties": {
         "state": "[parameters('logicAppState')]",
@@ -243,7 +224,6 @@
                       "inputs": {
                         "authentication": {
                           "audience": "[parameters('backendAudience')]",
-                          "identity": "[parameters('backendIdentityResourceId')]",
                           "type": "ManagedServiceIdentity"
                         },
                         "body": "@outputs('Build_conversation_message')",
@@ -289,7 +269,6 @@
                           "inputs": {
                             "authentication": {
                               "audience": "[parameters('backendAudience')]",
-                              "identity": "[parameters('backendIdentityResourceId')]",
                               "type": "ManagedServiceIdentity"
                             },
                             "body": "@outputs('Build_intention_request')",
@@ -321,7 +300,6 @@
                               "inputs": {
                                 "authentication": {
                                   "audience": "[parameters('backendAudience')]",
-                                  "identity": "[parameters('backendIdentityResourceId')]",
                                   "type": "ManagedServiceIdentity"
                                 },
                                 "body": "@body('Get_message_details')",
@@ -334,7 +312,6 @@
                               "inputs": {
                                 "authentication": {
                                   "audience": "[parameters('frontendAudience')]",
-                                  "identity": "[parameters('frontendIdentityResourceId')]",
                                   "type": "ManagedServiceIdentity"
                                 },
                                 "body": "@body('Convert_Teams_activity')",

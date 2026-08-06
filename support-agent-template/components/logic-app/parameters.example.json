@@ -22,26 +22,14 @@
     "backendAudience": {
       "value": "<backend-application-client-id>"
     },
-    "backendIdentityResourceId": {
-      "value": "<backend-user-assigned-identity-resource-id>"
-    },
     "frontendBaseUrl": {
       "value": "https://<frontend-host>"
     },
     "frontendAudience": {
       "value": "<bot-application-client-id>"
     },
-    "frontendIdentityResourceId": {
-      "value": "<bot-user-assigned-identity-resource-id>"
-    },
     "teamsConnectionResourceId": {
       "value": "<teams-api-connection-resource-id>"
-    },
-    "userAssignedIdentities": {
-      "value": {
-        "<backend-user-assigned-identity-resource-id>": {},
-        "<bot-user-assigned-identity-resource-id>": {}
-      }
     }
   }
 }
