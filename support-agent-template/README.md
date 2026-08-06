@@ -40,9 +40,14 @@ directory.
 
 ### 2. Discover the available settings
 
+Resolve the downloaded archive to an absolute path first. This prevents npm
+from resolving a relative filename against your user home or a parent npm
+workspace:
+
 ```powershell
+$templatePackage = (Resolve-Path .\support-agent-template-0.1.0.tgz).Path
 npx --yes `
-  --package .\support-agent-template-0.1.0.tgz `
+  --package $templatePackage `
   support-agent-template parameters
 ```
 
@@ -68,7 +73,7 @@ Create `customer-parameters.json`. This is the smallest useful configuration:
 
 ```powershell
 npx --yes `
-  --package .\support-agent-template-0.1.0.tgz `
+  --package $templatePackage `
   support-agent-template generate `
   --parameters .\customer-parameters.json `
   --output .\contoso-support
@@ -166,7 +171,7 @@ To save the complete machine-readable setting definition:
 
 ```powershell
 npx --yes `
-  --package .\support-agent-template-0.1.0.tgz `
+  --package $templatePackage `
   support-agent-template parameters `
   --output .\support-agent-parameters.json
 ```
