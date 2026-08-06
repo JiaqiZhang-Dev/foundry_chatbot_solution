@@ -4,6 +4,36 @@
 from your configuration. Every solution includes a Foundry hosted agent and
 backend. Microsoft Teams and channel auto-reply are optional.
 
+## What this template includes
+
+### Solution components
+
+| Component | Included | Purpose |
+| --- | --- | --- |
+| Foundry hosted agent | Always | Runs the configured assistant instructions and model, with optional Web Search |
+| FastAPI backend | Always | Provides chat, conversation, feedback, intention, Teams conversion, and health APIs |
+| Teams frontend | Optional | Receives Bot Framework activities and connects Teams users to the backend |
+| Teams app package | Optional | Provides the generated Teams manifest and app icons |
+| Logic App | Optional | Monitors selected Teams channels and coordinates automatic replies |
+| Generated configuration | Always | Supplies runtime settings, App Configuration values, component bindings, and provisioning requirements |
+
+Enabling Teams includes the frontend and Teams app package. Enabling channel
+auto-reply also includes the Logic App.
+
+### Chatbot features
+
+- Custom assistant name, instructions, business scope, and Foundry model.
+- Public-web grounding through Foundry Web Search with source citations.
+- Multi-turn conversation messages and state stored in Cosmos DB.
+- User feedback collection in Blob Storage.
+- Intention classification for deciding whether an automated reply is useful.
+- Microsoft Teams direct conversations and mentions when Teams is enabled.
+- Selected-channel auto-reply with human-expert reply suppression when
+  auto-reply is enabled.
+- Application telemetry and backend/frontend health endpoints.
+- Provisioner-neutral source and resource requirements for downstream
+  deployment.
+
 ## Requirements
 
 - Node.js 22 or later.
