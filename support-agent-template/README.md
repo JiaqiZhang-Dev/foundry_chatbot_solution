@@ -24,7 +24,7 @@ The npm package is not published yet. Build it locally from this repository.
 git clone https://github.com/JiaqiZhang-Dev/foundry_chatbot_solution.git
 Set-Location foundry_chatbot_solution\support-agent-template
 npm ci
-$templatePackage = npm pack --silent | Select-Object -Last 1
+npm pack
 ```
 
 This creates `azure-sdk-support-agent-template-0.1.0.tgz` in the current
@@ -33,7 +33,9 @@ directory. You do not need to modify or build the component source projects.
 ### 2. Discover the available settings
 
 ```powershell
-npx --yes --package ".\$templatePackage" support-agent-template parameters
+npx --yes `
+  --package .\azure-sdk-support-agent-template-0.1.0.tgz `
+  support-agent-template parameters
 ```
 
 This command shows every setting's JSON name, type, requirement, default,
@@ -57,7 +59,9 @@ Create `customer-parameters.json`. This is the smallest useful configuration:
 ### 4. Generate your solution
 
 ```powershell
-npx --yes --package ".\$templatePackage" support-agent-template generate `
+npx --yes `
+  --package .\azure-sdk-support-agent-template-0.1.0.tgz `
+  support-agent-template generate `
   --parameters .\customer-parameters.json `
   --output .\contoso-support
 ```
@@ -153,7 +157,9 @@ To enable channel auto-reply, also set:
 To save the complete machine-readable setting definition:
 
 ```powershell
-npx --yes --package ".\$templatePackage" support-agent-template parameters `
+npx --yes `
+  --package .\azure-sdk-support-agent-template-0.1.0.tgz `
+  support-agent-template parameters `
   --output .\support-agent-parameters.json
 ```
 
