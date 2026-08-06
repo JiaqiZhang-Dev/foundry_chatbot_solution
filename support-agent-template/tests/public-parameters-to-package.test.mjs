@@ -55,4 +55,42 @@ test("compiles public parameter values into a complete customer package", async 
     "frontend",
     "logic-app",
   ]);
+  const solution = JSON.parse(
+    await readFile(join(result.packageDirectory, "solution.json"), "utf8"),
+  );
+  assert.ok(
+    solution.capabilities.some(
+      (capability) => capability.id === "publicWebGrounding",
+    ),
+  );
+  assert.ok(
+    solution.capabilities.some(
+      (capability) => capability.id === "channelAutoReply",
+    ),
+  );
+  assert.deepEqual(
+    solution.components.map((component) => component.id),
+    ["backend", "agent", "frontend", "logic-app"],
+  );
+  assert.ok(
+    solution.endpoints.some(
+      (endpoint) => endpoint.urlTemplate === "${output.backendBaseUrl}/agent/chat",
+    ),
+  );
+  assert.ok(
+    solution.endpoints.some(
+      (endpoint) =>
+        endpoint.id === "hostedAgent" &&
+        endpoint.urlTemplate === "${output.agentEndpoint}",
+    ),
+  );
+  assert.ok(
+    resourceRequirements.resources
+      .find((resource) => resource.id === "agentCompute")
+      .produces.includes("agentEndpoint"),
+  );
+  assert.equal(
+    solution.resources.contract,
+    "config/generated/resource-requirements.json",
+  );
 });

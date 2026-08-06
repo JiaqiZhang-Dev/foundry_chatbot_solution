@@ -120,7 +120,7 @@ Bicep, Terraform, `azd`, a portal service, or another deployment engine.
 
 | File | Purpose |
 | --- | --- |
-| `solution.json` | Template version, customer identity, enabled components, and readiness |
+| `solution.json` | Customer-facing plan: enabled abilities, components, endpoint contracts, resource summary, and readiness |
 | `config/generated/resource-requirements.json` | Complete generated deployment contract: solution choices, logical resources, access, outputs, and component configuration |
 
 ### Provisioning sequence

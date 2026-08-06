@@ -53,6 +53,197 @@ function packageName(solutionName) {
   return `support-agent-${solutionName}`;
 }
 
+function buildCapabilities(config) {
+  const capabilities = [
+    {
+      id: "conversationalSupport",
+      name: "Conversational support",
+      providedBy: ["agent", "backend"],
+      description: "Answer multi-turn support questions using the configured model and instructions.",
+    },
+    {
+      id: "conversationHistory",
+      name: "Conversation history",
+      providedBy: ["backend"],
+      description: "Persist conversation messages and state.",
+    },
+    {
+      id: "feedbackCollection",
+      name: "Feedback collection",
+      providedBy: ["backend"],
+      description: "Collect user feedback about chatbot responses.",
+    },
+    {
+      id: "intentionClassification",
+      name: "Intention classification",
+      providedBy: ["backend"],
+      description: "Classify whether a message should receive an automated response.",
+    },
+    {
+      id: "healthMonitoring",
+      name: "Health and telemetry",
+      providedBy: config.teams.enabled
+        ? ["backend", "frontend"]
+        : ["backend"],
+      description: "Expose health checks and emit application telemetry.",
+    },
+  ];
+  if (config.assistant.webSearch.enabled) {
+    capabilities.push({
+      id: "publicWebGrounding",
+      name: "Public web grounding",
+      providedBy: ["agent"],
+      description: "Ground answers with Foundry Web Search and return source citations.",
+    });
+  }
+  if (config.teams.enabled) {
+    capabilities.push({
+      id: "teamsMessaging",
+      name: "Microsoft Teams messaging",
+      providedBy: ["frontend", "backend"],
+      description: "Handle direct conversations and mentions in Microsoft Teams.",
+    });
+  }
+  if (config.teams.autoReply) {
+    capabilities.push({
+      id: "channelAutoReply",
+      name: "Selected-channel auto-reply",
+      providedBy: ["logic-app", "backend", "frontend"],
+      description: "Reply in configured Teams channels when an automated answer is useful.",
+    });
+  }
+  return capabilities;
+}
+
+function buildComponents(enabledComponents) {
+  const definitions = {
+    agent: {
+      name: "Foundry hosted agent",
+      kind: "hosted-agent",
+      purpose: "Runs the configured assistant model, instructions, and tools.",
+    },
+    backend: {
+      name: "Chat API",
+      kind: "http-api",
+      purpose: "Provides chat, conversation, feedback, intention, and Teams conversion APIs.",
+    },
+    frontend: {
+      name: "Teams bot",
+      kind: "bot-service",
+      purpose: "Receives Bot Framework activities and connects Teams users to the backend.",
+    },
+    "logic-app": {
+      name: "Channel auto-reply workflow",
+      kind: "workflow",
+      purpose: "Monitors selected Teams channels and coordinates automatic replies.",
+    },
+  };
+  return enabledComponents.map((id) => ({
+    id,
+    ...definitions[id],
+    source: `components/${id}`,
+  }));
+}
+
+function buildEndpoints(config) {
+  const endpoints = [
+    {
+      id: "hostedAgent",
+      component: "agent",
+      protocol: "foundry-hosted-agent",
+      urlTemplate: "${output.agentEndpoint}",
+      purpose: "Invoke the deployed Foundry hosted agent.",
+    },
+    {
+      id: "backendHealth",
+      component: "backend",
+      method: "GET",
+      urlTemplate: "${output.backendBaseUrl}/ping",
+      purpose: "Backend health and version check.",
+    },
+    {
+      id: "chat",
+      component: "backend",
+      method: "POST",
+      urlTemplate: "${output.backendBaseUrl}/agent/chat",
+      purpose: "Send a user message and receive an assistant response.",
+    },
+    {
+      id: "feedback",
+      component: "backend",
+      method: "POST",
+      urlTemplate: "${output.backendBaseUrl}/agent/feedback",
+      purpose: "Submit feedback for a chatbot response.",
+    },
+    {
+      id: "conversationSave",
+      component: "backend",
+      method: "POST",
+      urlTemplate: "${output.backendBaseUrl}/conversation/save",
+      purpose: "Persist conversation messages and state.",
+    },
+    {
+      id: "messageIntention",
+      component: "backend",
+      method: "POST",
+      urlTemplate: "${output.backendBaseUrl}/message/intention",
+      purpose: "Classify whether a message should receive an automated response.",
+    },
+  ];
+  if (config.teams.enabled) {
+    endpoints.push(
+      {
+        id: "teamsActivityConversion",
+        component: "backend",
+        method: "POST",
+        urlTemplate: "${output.backendBaseUrl}/teams/activity/convert",
+        purpose: "Convert a Teams message into a Bot Framework activity.",
+      },
+      {
+        id: "teamsBotHealth",
+        component: "frontend",
+        method: "GET",
+        urlTemplate: "${output.frontendBaseUrl}/health",
+        purpose: "Teams bot health check.",
+      },
+      {
+        id: "teamsMessages",
+        component: "frontend",
+        method: "POST",
+        urlTemplate: "${output.frontendBaseUrl}/api/messages",
+        purpose: "Receive Microsoft Teams Bot Framework activities.",
+      },
+    );
+  }
+  return endpoints;
+}
+
+function buildSolutionPlan(config, templateVersion, enabledComponents, readiness, requirements) {
+  return {
+    schemaVersion: "1.0",
+    template: {
+      id: "support-agent",
+      version: templateVersion,
+    },
+    customer: {
+      name: config.name,
+      displayName: config.assistant.displayName,
+    },
+    capabilities: buildCapabilities(config),
+    components: buildComponents(enabledComponents),
+    endpoints: buildEndpoints(config),
+    resources: {
+      contract: readiness.resourceContract,
+      planned: requirements.resources.map((resource) => ({
+        id: resource.id,
+        kind: resource.kind,
+        requiredBy: resource.requiredBy,
+      })),
+    },
+    readiness,
+  };
+}
+
 function createReadme(config, readiness) {
   const components = ["backend", "agent"];
   if (config.teams.enabled) {
@@ -70,6 +261,10 @@ Generated from \`support-agent@${readiness.templateVersion}\`.
 ${components.map((component) => `- \`components/${component}\``).join("\n")}
 
 ## Configuration
+
+Read \`solution.json\` for the customer-facing plan of enabled chatbot
+capabilities, included components, service endpoints, and required resource
+types.
 
 The complete generated deployment contract is
 \`config/generated/resource-requirements.json\`. It contains the solution
@@ -205,19 +400,16 @@ export async function buildCustomerPackage({
   };
   await Promise.all([
     writeJson(join(stagingDirectory, "package.json"), customerPackageJson),
-    writeJson(join(stagingDirectory, "solution.json"), {
-      schemaVersion: "1.0",
-      template: {
-        id: "support-agent",
-        version: templatePackage.version,
-      },
-      customer: {
-        name: config.name,
-        displayName: config.assistant.displayName,
-      },
-      components: enabledComponents,
-      readiness,
-    }),
+    writeJson(
+      join(stagingDirectory, "solution.json"),
+      buildSolutionPlan(
+        config,
+        templatePackage.version,
+        enabledComponents,
+        readiness,
+        rendered.resourceRequirements,
+      ),
+    ),
     writeFile(
       join(stagingDirectory, "README.md"),
       createReadme(config, readiness),

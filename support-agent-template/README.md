@@ -128,6 +128,11 @@ The command validates your settings and creates:
 - `contoso-support\support-agent-contoso-support-0.1.0.tgz`: the distributable
   solution archive.
 
+Inside the package, `solution.json` summarizes the enabled chatbot abilities,
+included components, planned service endpoints, and required resource types.
+`config/generated/resource-requirements.json` provides the detailed handoff for
+the downstream provisioner.
+
 ### 5. Send the solution for provisioning
 
 Give the generated `.tgz` to your PaaS or downstream provisioning service. If

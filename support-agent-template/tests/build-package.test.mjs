@@ -85,5 +85,27 @@ teams:
     await readFile(join(result.packageDirectory, "solution.json"), "utf8"),
   );
   assert.equal(solution.environment, undefined);
+  assert.ok(
+    solution.capabilities.some(
+      (capability) => capability.id === "teamsMessaging",
+    ),
+  );
+  assert.ok(
+    !solution.capabilities.some(
+      (capability) => capability.id === "channelAutoReply",
+    ),
+  );
+  assert.ok(
+    solution.endpoints.some(
+      (endpoint) =>
+        endpoint.id === "teamsMessages" &&
+        endpoint.urlTemplate === "${output.frontendBaseUrl}/api/messages",
+    ),
+  );
+  assert.ok(
+    solution.resources.planned.some(
+      (resource) => resource.id === "backendCompute",
+    ),
+  );
   assert.equal(result.readiness.readyForDownstreamProvisioning, true);
 });

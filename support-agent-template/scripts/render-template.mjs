@@ -364,7 +364,7 @@ function buildResourceRequirements(config, enabledComponents) {
       configuration: {
         runtimeSettings: runtimeSettings.agent,
       },
-      produces: ["agentIdentityPrincipalId"],
+      produces: ["agentEndpoint", "agentIdentityPrincipalId"],
     },
     {
       id: "backendCompute",
@@ -498,12 +498,18 @@ export async function renderCustomerConfiguration({
     bindingSyntax: "${output.<infrastructure-output>}",
   };
 
-  await writeJson(
-    join(target, "resource-requirements.json"),
-    buildResourceRequirements(normalizedConfig, enabledComponents),
+  const resourceRequirements = buildResourceRequirements(
+    normalizedConfig,
+    enabledComponents,
   );
+  await writeJson(join(target, "resource-requirements.json"), resourceRequirements);
 
-  return { config: normalizedConfig, outputPath: target, solutionManifest };
+  return {
+    config: normalizedConfig,
+    outputPath: target,
+    resourceRequirements,
+    solutionManifest,
+  };
 }
 
 function parseArguments(args) {
