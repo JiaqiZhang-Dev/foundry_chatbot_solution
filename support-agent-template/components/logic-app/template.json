@@ -1,0 +1,391 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Consumption Logic App."
+      }
+    },
+    "logicAppState": {
+      "type": "string",
+      "defaultValue": "Disabled",
+      "allowedValues": [
+        "Disabled",
+        "Enabled"
+      ],
+      "metadata": {
+        "description": "Initial workflow state. Enable only after dependent services are healthy."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "teamsGroupId": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Teams team (group) ID to monitor."
+      }
+    },
+    "teamsChannelIds": {
+      "type": "array",
+      "minLength": 1,
+      "metadata": {
+        "description": "Microsoft Teams channel IDs to monitor."
+      }
+    },
+    "backendBaseUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Base URL of the support-agent backend."
+      }
+    },
+    "backendAudience": {
+      "type": "string",
+      "metadata": {
+        "description": "Entra application client ID exposed by the backend."
+      }
+    },
+    "backendIdentityResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "User-assigned managed identity used for backend calls."
+      }
+    },
+    "frontendBaseUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Base URL of the Teams frontend."
+      }
+    },
+    "frontendAudience": {
+      "type": "string",
+      "metadata": {
+        "description": "Bot application client ID used as the frontend audience."
+      }
+    },
+    "frontendIdentityResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Bot user-assigned managed identity used to invoke the frontend."
+      }
+    },
+    "teamsConnectionResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of an authorized Microsoft Teams API connection."
+      }
+    },
+    "userAssignedIdentities": {
+      "type": "object",
+      "metadata": {
+        "description": "User-assigned identities attached to the Logic App."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned, UserAssigned",
+        "userAssignedIdentities": "[parameters('userAssignedIdentities')]"
+      },
+      "properties": {
+        "state": "[parameters('logicAppState')]",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "When_a_new_message_is_added_to_a_channel": {
+              "type": "ApiConnectionWebhook",
+              "inputs": {
+                "body": {
+                  "channels": "[parameters('teamsChannelIds')]",
+                  "groupId": "[parameters('teamsGroupId')]",
+                  "notificationUrl": "@listCallbackUrl()"
+                },
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['teams']['connectionId']"
+                  }
+                },
+                "path": "/beta/subscriptions/newmessagetrigger/threadType/@{encodeURIComponent('channel')}"
+              }
+            }
+          },
+          "actions": {
+            "For_each_message": {
+              "type": "Foreach",
+              "foreach": "@triggerBody()?['value']",
+              "runAfter": {},
+              "actions": {
+                "Get_message_details": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "body": {
+                      "recipient": {
+                        "channelId": "@item()?['channelId']",
+                        "groupId": "[parameters('teamsGroupId')]",
+                        "parentMessageId": "@item()?['replyToMessageId']"
+                      }
+                    },
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['teams']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "/beta/teams/messages/@{encodeURIComponent(item()?['messageId'])}/messageType/@{encodeURIComponent('channel')}"
+                  }
+                },
+                "Filter_bot_mentions": {
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@coalesce(body('Get_message_details')?['mentions'], json('[]'))",
+                    "where": "@not(equals(item()?['mentioned']?['application'], null))"
+                  },
+                  "runAfter": {
+                    "Get_message_details": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Filter_announcements": {
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@coalesce(body('Get_message_details')?['attachments'], json('[]'))",
+                    "where": "@equals(item()?['contentType'], 'application/vnd.microsoft.teams.messaging-announcementBanner')"
+                  },
+                  "runAfter": {
+                    "Filter_bot_mentions": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Filter_meetings": {
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@coalesce(body('Get_message_details')?['attachments'], json('[]'))",
+                    "where": "@equals(item()?['contentType'], 'meetingReference')"
+                  },
+                  "runAfter": {
+                    "Filter_announcements": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Process_user_message": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@body('Get_message_details')?['messageType']",
+                          "message"
+                        ]
+                      },
+                      {
+                        "equals": [
+                          "@length(body('Filter_announcements'))",
+                          0
+                        ]
+                      },
+                      {
+                        "equals": [
+                          "@length(body('Filter_meetings'))",
+                          0
+                        ]
+                      },
+                      {
+                        "equals": [
+                          "@body('Get_message_details')?['from']?['application']",
+                          "@null"
+                        ]
+                      }
+                    ]
+                  },
+                  "runAfter": {
+                    "Filter_meetings": [
+                      "Succeeded"
+                    ]
+                  },
+                  "actions": {
+                    "Build_conversation_message": {
+                      "type": "Compose",
+                      "inputs": {
+                        "id": "@item()?['messageId']",
+                        "sender_role": "user",
+                        "sender_id": "@body('Get_message_details')?['from']?['user']?['id']",
+                        "sender_name": "@body('Get_message_details')?['from']?['user']?['displayName']",
+                        "content": "@body('Get_message_details')?['body']?['content']",
+                        "created_at": "@body('Get_message_details')?['createdDateTime']",
+                        "conversation_id": "@concat(body('Get_message_details')?['channelId'], ';messageid=', if(empty(body('Get_message_details')?['replyToId']), body('Get_message_details')?['id'], body('Get_message_details')?['replyToId']))",
+                        "conversation_type": "teams_channel",
+                        "extra_info": {
+                          "channel_id": "@item()?['channelId']",
+                          "message_link": "@body('Get_message_details')?['messageLink']"
+                        }
+                      }
+                    },
+                    "Save_conversation_message": {
+                      "type": "Http",
+                      "inputs": {
+                        "authentication": {
+                          "audience": "[parameters('backendAudience')]",
+                          "identity": "[parameters('backendIdentityResourceId')]",
+                          "type": "ManagedServiceIdentity"
+                        },
+                        "body": "@outputs('Build_conversation_message')",
+                        "method": "POST",
+                        "uri": "[concat(parameters('backendBaseUrl'), '/conversation/save')]"
+                      },
+                      "runAfter": {
+                        "Build_conversation_message": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Message_does_not_mention_bot": {
+                      "type": "If",
+                      "expression": {
+                        "equals": [
+                          "@length(body('Filter_bot_mentions'))",
+                          0
+                        ]
+                      },
+                      "runAfter": {
+                        "Save_conversation_message": [
+                          "Succeeded"
+                        ]
+                      },
+                      "actions": {
+                        "Build_intention_request": {
+                          "type": "Compose",
+                          "inputs": {
+                            "conversation_id": "@outputs('Build_conversation_message')?['conversation_id']",
+                            "conversation_type": "teams_channel",
+                            "message": {
+                              "id": "@item()?['messageId']",
+                              "role": "user",
+                              "content": "@body('Get_message_details')?['body']?['content']",
+                              "user_id": "@body('Get_message_details')?['from']?['user']?['id']",
+                              "user_name": "@body('Get_message_details')?['from']?['user']?['displayName']"
+                            }
+                          }
+                        },
+                        "Check_intention": {
+                          "type": "Http",
+                          "inputs": {
+                            "authentication": {
+                              "audience": "[parameters('backendAudience')]",
+                              "identity": "[parameters('backendIdentityResourceId')]",
+                              "type": "ManagedServiceIdentity"
+                            },
+                            "body": "@outputs('Build_intention_request')",
+                            "method": "POST",
+                            "uri": "[concat(parameters('backendBaseUrl'), '/message/intention')]"
+                          },
+                          "runAfter": {
+                            "Build_intention_request": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "Should_reply": {
+                          "type": "If",
+                          "expression": {
+                            "equals": [
+                              "@body('Check_intention')?['should_respond']",
+                              true
+                            ]
+                          },
+                          "runAfter": {
+                            "Check_intention": [
+                              "Succeeded"
+                            ]
+                          },
+                          "actions": {
+                            "Convert_Teams_activity": {
+                              "type": "Http",
+                              "inputs": {
+                                "authentication": {
+                                  "audience": "[parameters('backendAudience')]",
+                                  "identity": "[parameters('backendIdentityResourceId')]",
+                                  "type": "ManagedServiceIdentity"
+                                },
+                                "body": "@body('Get_message_details')",
+                                "method": "POST",
+                                "uri": "[concat(parameters('backendBaseUrl'), '/teams/activity/convert')]"
+                              }
+                            },
+                            "Invoke_frontend_bot": {
+                              "type": "Http",
+                              "inputs": {
+                                "authentication": {
+                                  "audience": "[parameters('frontendAudience')]",
+                                  "identity": "[parameters('frontendIdentityResourceId')]",
+                                  "type": "ManagedServiceIdentity"
+                                },
+                                "body": "@body('Convert_Teams_activity')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "method": "POST",
+                                "retryPolicy": {
+                                  "type": "none"
+                                },
+                                "uri": "[concat(parameters('frontendBaseUrl'), '/api/messages')]"
+                              },
+                              "runAfter": {
+                                "Convert_Teams_activity": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          },
+                          "else": {
+                            "actions": {}
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {}
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  }
+                }
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "teams": {
+                "connectionId": "[parameters('teamsConnectionResourceId')]",
+                "connectionName": "teams",
+                "connectionProperties": {},
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/teams')]"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

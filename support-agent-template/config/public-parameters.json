@@ -1,0 +1,226 @@
+{
+  "schemaVersion": "1.0",
+  "template": "support-agent",
+  "parameters": [
+    {
+      "name": "solutionName",
+      "type": "string",
+      "label": "Solution name",
+      "description": "Lowercase identifier used for the generated solution.",
+      "required": true,
+      "pattern": "^[a-z][a-z0-9-]{2,30}$"
+    },
+    {
+      "name": "assistantDisplayName",
+      "type": "string",
+      "label": "Assistant display name",
+      "required": true,
+      "maxLength": 100
+    },
+    {
+      "name": "agentInstructions",
+      "type": "multiline-string",
+      "label": "Agent instructions",
+      "description": "Defines assistant behavior, boundaries, and response style.",
+      "required": true,
+      "maxLength": 9000
+    },
+    {
+      "name": "modelDeployment",
+      "type": "model-deployment",
+      "label": "Model deployment",
+      "required": true
+    },
+    {
+      "name": "assistantScope",
+      "type": "string",
+      "label": "Support scope",
+      "default": "the configured business support domain"
+    },
+    {
+      "name": "webSearchEnabled",
+      "type": "boolean",
+      "label": "Enable public web search",
+      "default": true
+    },
+    {
+      "name": "webSearchContextSize",
+      "type": "choice",
+      "label": "Web search context size",
+      "choices": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "visibleWhen": {
+        "webSearchEnabled": true
+      }
+    },
+    {
+      "name": "knowledgeSources",
+      "type": "url-list",
+      "label": "Preferred public sources",
+      "default": [],
+      "visibleWhen": {
+        "webSearchEnabled": true
+      }
+    },
+    {
+      "name": "teamsEnabled",
+      "type": "boolean",
+      "label": "Enable Microsoft Teams",
+      "default": false
+    },
+    {
+      "name": "teamsAutoReply",
+      "type": "boolean",
+      "label": "Enable channel auto-reply",
+      "default": false,
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "teamsTeamId",
+      "type": "string",
+      "label": "Team ID",
+      "requiredWhen": {
+        "teamsAutoReply": true
+      },
+      "visibleWhen": {
+        "teamsAutoReply": true
+      }
+    },
+    {
+      "name": "teamsChannelIds",
+      "type": "string-list",
+      "label": "Channel IDs",
+      "minItems": 1,
+      "requiredWhen": {
+        "teamsAutoReply": true
+      },
+      "visibleWhen": {
+        "teamsAutoReply": true
+      }
+    },
+    {
+      "name": "teamsShortName",
+      "type": "string",
+      "label": "Teams short name",
+      "maxLength": 30,
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "teamsFullName",
+      "type": "string",
+      "label": "Teams full name",
+      "maxLength": 100,
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "teamsShortDescription",
+      "type": "string",
+      "label": "Teams short description",
+      "maxLength": 80,
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "teamsFullDescription",
+      "type": "multiline-string",
+      "label": "Teams full description",
+      "maxLength": 4000,
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "developerName",
+      "type": "string",
+      "label": "Developer name",
+      "requiredWhen": {
+        "teamsEnabled": true
+      },
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "developerWebsiteUrl",
+      "type": "url",
+      "label": "Developer website",
+      "requiredWhen": {
+        "teamsEnabled": true
+      },
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "privacyUrl",
+      "type": "url",
+      "label": "Privacy URL",
+      "requiredWhen": {
+        "teamsEnabled": true
+      },
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "termsOfUseUrl",
+      "type": "url",
+      "label": "Terms of use URL",
+      "requiredWhen": {
+        "teamsEnabled": true
+      },
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "label": "Default locale",
+      "default": "en-US",
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "timezone",
+      "type": "string",
+      "label": "Default timezone",
+      "default": "UTC",
+      "visibleWhen": {
+        "teamsEnabled": true
+      }
+    },
+    {
+      "name": "environment",
+      "type": "string",
+      "label": "Environment",
+      "required": true,
+      "default": "dev",
+      "pattern": "^[a-z][a-z0-9-]{1,15}$"
+    },
+    {
+      "name": "location",
+      "type": "azure-location",
+      "label": "Azure region",
+      "required": true
+    },
+    {
+      "name": "resourcePrefix",
+      "type": "string",
+      "label": "Resource prefix",
+      "pattern": "^[a-z][a-z0-9-]{2,40}$"
+    }
+  ]
+}

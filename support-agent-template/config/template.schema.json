@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "description",
+    "sourceComponents",
+    "externalComponents",
+    "parameterContract",
+    "compiler",
+    "customization",
+    "infrastructure",
+    "artifact"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "const": "support-agent"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceComponents": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "runtime",
+          "deploymentTarget"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "frontend",
+              "backend",
+              "agent",
+              "logic-app"
+            ]
+          },
+          "path": {
+            "type": "string"
+          },
+          "runtime": {
+            "enum": [
+              "node",
+              "python",
+              "workflow"
+            ]
+          },
+          "deploymentTarget": {
+            "enum": [
+              "azure-app-service",
+              "azure-ai-foundry-agent",
+              "azure-logic-app-consumption"
+            ]
+          }
+        }
+      }
+    },
+    "externalComponents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameterContract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "compiler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executable",
+        "parameterCommand",
+        "generateConfigCommand",
+        "renderCommand",
+        "buildPackageCommand",
+        "internalConfigFile"
+      ],
+      "properties": {
+        "executable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parameterCommand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generateConfigCommand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "renderCommand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "buildPackageCommand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "internalConfigFile": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "customization": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "type",
+          "required"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "binding": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "infrastructure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "deployment",
+        "configuration"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "deployment": {
+          "type": "string"
+        },
+        "configuration": {
+          "type": "string"
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outputPath",
+        "contents"
+      ],
+      "properties": {
+        "outputPath": {
+          "type": "string"
+        },
+        "contents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

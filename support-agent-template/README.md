@@ -1,0 +1,147 @@
+# Support Agent Template
+
+`@azure-sdk/support-agent-template@0.1.0` generates a support chatbot solution
+from your configuration. Every solution includes a Foundry hosted agent and
+backend. Microsoft Teams and channel auto-reply are optional.
+
+## Requirements
+
+- Node.js 22 or later.
+- npm access to the registry containing this package.
+- A PaaS or downstream provisioning service that supports the generated
+  solution package.
+
+You do not need an Azure sign-in to generate the solution.
+
+## Quick start
+
+### 1. Discover the available settings
+
+```powershell
+npx @azure-sdk/support-agent-template@0.1.0 parameters
+```
+
+This command shows every setting's JSON name, type, requirement, default,
+description, and allowed choices.
+
+### 2. Create your configuration
+
+Create `customer-parameters.json`. This is the smallest useful configuration:
+
+```json
+{
+  "solutionName": "contoso-support",
+  "assistantDisplayName": "Contoso Support",
+  "agentInstructions": "Answer Contoso product questions clearly and cite useful public sources.",
+  "modelDeployment": "gpt-4.1-mini",
+  "environment": "dev",
+  "location": "westus2"
+}
+```
+
+### 3. Generate your solution
+
+```powershell
+npx @azure-sdk/support-agent-template@0.1.0 generate `
+  --parameters .\customer-parameters.json `
+  --output .\contoso-support
+```
+
+The command validates your settings and creates:
+
+- `contoso-support\package\`: the unpacked solution.
+- `contoso-support\support-agent-contoso-support-0.1.0.tgz`: the distributable
+  solution archive.
+
+### 4. Send the solution for provisioning
+
+Give the generated `.tgz` to your PaaS or downstream provisioning service. If
+you generated the solution inside a PaaS portal, this handoff may happen
+automatically.
+
+The generated archive is not a standalone installer. You do not need to open,
+edit, or validate its internal files.
+
+## Settings
+
+### Solution and assistant
+
+| JSON name | Required | Default or constraint | Purpose |
+| --- | --- | --- | --- |
+| `solutionName` | Yes | Lowercase, 3-31 characters | Generated solution identifier |
+| `assistantDisplayName` | Yes | Maximum 100 characters | User-visible assistant name |
+| `agentInstructions` | Yes | Maximum 9,000 characters | Behavior, boundaries, and response style |
+| `modelDeployment` | Yes | Existing model deployment name | Model used by the hosted agent |
+| `assistantScope` | No | `the configured business support domain` | Business domain the assistant supports |
+| `environment` | Yes | `dev` | Deployment environment name |
+| `location` | Yes | Azure region name | Deployment region |
+| `resourcePrefix` | No | Lowercase, 3-41 characters | Optional Azure resource-name prefix |
+
+### Public web grounding
+
+| JSON name | Required | Default or choices | Purpose |
+| --- | --- | --- | --- |
+| `webSearchEnabled` | No | `true` | Enable Foundry Web Search |
+| `webSearchContextSize` | No | `medium`; `low`, `medium`, or `high` | Search context size |
+| `knowledgeSources` | No | `[]` | Preferred public HTTPS source URLs |
+
+`knowledgeSources` guides the assistant toward preferred public sources. It
+does not create a private knowledge index or prevent Web Search from using
+other public pages.
+
+### Microsoft Teams
+
+| JSON name | Required | Default or condition | Purpose |
+| --- | --- | --- | --- |
+| `teamsEnabled` | No | `false` | Include the Teams chatbot |
+| `teamsAutoReply` | No | `false`; requires Teams | Reply automatically in selected channels |
+| `teamsTeamId` | With auto-reply | Team ID | Team monitored for messages |
+| `teamsChannelIds` | With auto-reply | At least one channel ID | Channels monitored for messages |
+| `teamsShortName` | No | Maximum 30 characters | Short Teams app name |
+| `teamsFullName` | No | Maximum 100 characters | Full Teams app name |
+| `teamsShortDescription` | No | Maximum 80 characters | Short Teams app description |
+| `teamsFullDescription` | No | Maximum 4,000 characters | Full Teams app description |
+| `developerName` | With Teams | No default | Teams app publisher name |
+| `developerWebsiteUrl` | With Teams | HTTPS URL | Publisher website |
+| `privacyUrl` | With Teams | HTTPS URL | Privacy statement |
+| `termsOfUseUrl` | With Teams | HTTPS URL | Terms of use |
+| `locale` | No | `en-US` | Default Teams locale |
+| `timezone` | No | `UTC` | Default operational timezone |
+
+Example Teams settings:
+
+```json
+{
+  "teamsEnabled": true,
+  "teamsShortName": "Contoso Support",
+  "developerName": "Contoso",
+  "developerWebsiteUrl": "https://www.contoso.com",
+  "privacyUrl": "https://www.contoso.com/privacy",
+  "termsOfUseUrl": "https://www.contoso.com/terms"
+}
+```
+
+To enable channel auto-reply, also set:
+
+```json
+{
+  "teamsAutoReply": true,
+  "teamsTeamId": "<team-id>",
+  "teamsChannelIds": [
+    "<channel-id>"
+  ]
+}
+```
+
+## Save the settings contract
+
+To save the complete machine-readable setting definition:
+
+```powershell
+npx @azure-sdk/support-agent-template@0.1.0 parameters `
+  --output .\support-agent-parameters.json
+```
+
+Infrastructure endpoints, resource IDs, identities, credentials, scopes,
+connection strings, and role assignments are not customer settings. The
+provisioning service creates and supplies them.

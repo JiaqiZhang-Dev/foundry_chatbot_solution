@@ -1,0 +1,11 @@
+azure-ai-projects==2.2.0
+azure-appconfiguration==1.8.0
+azure-cosmos==4.9.0
+azure-identity==1.26.0b2
+azure-monitor-opentelemetry
+azure-storage-blob==12.29.0
+aiohttp
+fastapi
+openai
+python-dotenv>=1.2.2
+uvicorn[standard]

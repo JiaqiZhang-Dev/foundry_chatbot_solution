@@ -1,0 +1,35 @@
+schemaVersion: "1.0"
+name: contoso-support
+
+assistant:
+  displayName: Contoso Support
+  instructions: |
+    Answer questions about Contoso products clearly and concisely.
+    Prefer the configured public documentation and cite useful sources.
+  model: gpt-4.1-mini
+  scope: Contoso products and services
+  webSearch:
+    enabled: true
+    contextSize: medium
+    sourceHints:
+      - https://github.com/contoso/docs
+
+teams:
+  enabled: true
+  autoReply: true
+  teamId: <teams-group-id>
+  channelIds:
+    - <teams-channel-id>
+  shortName: Contoso Support
+  fullName: Contoso Support Agent
+  shortDescription: Ask questions about Contoso products.
+  fullDescription: Get support answers grounded in Contoso public documentation.
+  developer:
+    name: Contoso
+    websiteUrl: https://www.contoso.com
+    privacyUrl: https://www.contoso.com/privacy
+    termsOfUseUrl: https://www.contoso.com/terms
+
+deployment:
+  environment: dev
+  location: westus2

@@ -1,0 +1,28 @@
+{
+  "solutionName": "contoso-support",
+  "assistantDisplayName": "Contoso Support",
+  "agentInstructions": "Answer questions about Contoso products clearly and concisely. Prefer configured public documentation and cite useful sources.",
+  "modelDeployment": "gpt-4.1-mini",
+  "assistantScope": "Contoso products and services",
+  "webSearchEnabled": true,
+  "webSearchContextSize": "medium",
+  "knowledgeSources": [
+    "https://github.com/contoso/docs"
+  ],
+  "teamsEnabled": true,
+  "teamsAutoReply": true,
+  "teamsTeamId": "<teams-group-id>",
+  "teamsChannelIds": [
+    "<teams-channel-id>"
+  ],
+  "teamsShortName": "Contoso Support",
+  "teamsFullName": "Contoso Support Agent",
+  "teamsShortDescription": "Ask questions about Contoso products.",
+  "teamsFullDescription": "Get support answers grounded in Contoso public documentation.",
+  "developerName": "Contoso",
+  "developerWebsiteUrl": "https://www.contoso.com",
+  "privacyUrl": "https://www.contoso.com/privacy",
+  "termsOfUseUrl": "https://www.contoso.com/terms",
+  "environment": "dev",
+  "location": "westus2"
+}

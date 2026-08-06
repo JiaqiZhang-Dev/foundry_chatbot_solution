@@ -1,0 +1,3 @@
+name: support-agent
+protocol: responses
+port: 8088

@@ -1,0 +1,36 @@
+{
+  "name": "@azure-sdk/support-agent-template",
+  "version": "0.1.0",
+  "description": "Deployable support chatbot solution template",
+  "type": "module",
+  "bin": {
+    "support-agent-template": "scripts/cli.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "components",
+    "config",
+    "scripts",
+    "DEVELOPE.md",
+    "README.md",
+    "template.json",
+    "!components/frontend/devTools"
+  ],
+  "chatbotTemplate": {
+    "id": "support-agent",
+    "manifest": "template.json"
+  },
+  "scripts": {
+    "build": "node scripts/build-package.mjs",
+    "cli": "node scripts/cli.mjs",
+    "generate-config": "node scripts/generate-customer-config.mjs",
+    "render": "node scripts/render-template.mjs",
+    "validate": "node scripts/validate-structure.mjs",
+    "test": "npm run validate && node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  }
+}

@@ -1,0 +1,8 @@
+agent-framework-core==1.7.0
+agent-framework-foundry==1.7.0
+agent-framework-foundry-hosting==1.0.0a260528
+aiohttp
+azure-appconfiguration==1.8.0
+azure-identity==1.26.0b2
+mcp==1.28.1
+python-dotenv>=1.2.2

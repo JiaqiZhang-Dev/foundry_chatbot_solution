@@ -1,0 +1,92 @@
+{
+  "$schema": "./config/template.schema.json",
+  "id": "support-agent",
+  "name": "Support Agent",
+  "description": "A deployable knowledge-grounded support chatbot with optional Microsoft Teams integration.",
+  "sourceComponents": [
+    {
+      "id": "frontend",
+      "path": "components/frontend",
+      "runtime": "node",
+      "deploymentTarget": "azure-app-service"
+    },
+    {
+      "id": "backend",
+      "path": "components/backend",
+      "runtime": "python",
+      "deploymentTarget": "azure-app-service"
+    },
+    {
+      "id": "agent",
+      "path": "components/agent",
+      "runtime": "python",
+      "deploymentTarget": "azure-ai-foundry-agent"
+    },
+    {
+      "id": "logic-app",
+      "path": "components/logic-app",
+      "runtime": "workflow",
+      "deploymentTarget": "azure-logic-app-consumption"
+    }
+  ],
+  "externalComponents": [
+    {
+      "id": "public-web",
+      "description": "Foundry Web Search provides optional public-web grounding without a customer-managed knowledge index."
+    }
+  ],
+  "parameterContract": "config/public-parameters.json",
+  "compiler": {
+    "executable": "support-agent-template",
+    "parameterCommand": "support-agent-template parameters",
+    "generateConfigCommand": "support-agent-template configure",
+    "renderCommand": "support-agent-template render",
+    "buildPackageCommand": "support-agent-template generate",
+    "internalConfigFile": "customer-config.yaml"
+  },
+  "customization": [
+    {
+      "name": "assistantName",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "agentInstructions",
+      "type": "multiline-string",
+      "required": true,
+      "binding": "agent.AGENT_INSTRUCTIONS"
+    },
+    {
+      "name": "modelDeployment",
+      "type": "allowlisted-model",
+      "required": true,
+      "binding": "agent.AI_FOUNDRY_AGENT_COMPLETION_MODEL"
+    },
+    {
+      "name": "knowledgeSources",
+      "type": "public-url-list",
+      "required": false,
+      "binding": "agent.WEB_SEARCH_SOURCE_HINTS"
+    },
+    {
+      "name": "teams",
+      "type": "teams-settings",
+      "required": false
+    }
+  ],
+  "infrastructure": {
+    "path": "infra",
+    "deployment": "deployment",
+    "configuration": "config"
+  },
+  "artifact": {
+    "outputPath": "artifacts",
+    "contents": [
+      "rendered source components",
+      "Bicep infrastructure",
+      "azure.yaml and deployment hooks",
+      "environment configuration",
+      "deployment manifest"
+    ]
+  }
+}

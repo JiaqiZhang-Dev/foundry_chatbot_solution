@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.7/yaml.schema.json
+version: v1.7
+
+environmentFolderPath: ./env
+
+provision:
+  - uses: teamsApp/create
+    with:
+      name: ${{TEAMS_BOT_FULL_DISPLAY_NAME}}
+    writeToEnvironmentFile:
+      teamsAppId: TEAMS_APP_ID
+  - uses: teamsApp/validateManifest
+    with:
+      manifestPath: ./appPackage/manifest.testtool.json
+  - uses: teamsApp/zipAppPackage
+    with:
+      manifestPath: ./appPackage/manifest.testtool.json
+      outputZipPath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+      outputFolder: ./appPackage/build
+  - uses: teamsApp/validateAppPackage
+    with:
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+  - uses: teamsApp/update
+    with:
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+
+deploy:
+  - uses: devTool/install
+    with:
+      testTool:
+        version: ~0.2.1
+        symlinkDir: ./devTools/teamsapptester
+  - uses: cli/runNpmCommand
+    with:
+      args: install --no-audit
+  - uses: file/createOrUpdateEnvironmentFile
+    with:
+      target: ./env/.env.testtool
+      envs:
+        IS_LOCAL: true
+        BACKEND_BASE_URL: http://localhost:8000

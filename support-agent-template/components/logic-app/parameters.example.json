@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "value": "my-support-agent-logic-app"
+    },
+    "logicAppState": {
+      "value": "Disabled"
+    },
+    "teamsGroupId": {
+      "value": "<teams-group-id>"
+    },
+    "teamsChannelIds": {
+      "value": [
+        "<teams-channel-id>"
+      ]
+    },
+    "backendBaseUrl": {
+      "value": "https://<backend-host>"
+    },
+    "backendAudience": {
+      "value": "<backend-application-client-id>"
+    },
+    "backendIdentityResourceId": {
+      "value": "<backend-user-assigned-identity-resource-id>"
+    },
+    "frontendBaseUrl": {
+      "value": "https://<frontend-host>"
+    },
+    "frontendAudience": {
+      "value": "<bot-application-client-id>"
+    },
+    "frontendIdentityResourceId": {
+      "value": "<bot-user-assigned-identity-resource-id>"
+    },
+    "teamsConnectionResourceId": {
+      "value": "<teams-api-connection-resource-id>"
+    },
+    "userAssignedIdentities": {
+      "value": {
+        "<backend-user-assigned-identity-resource-id>": {},
+        "<bot-user-assigned-identity-resource-id>": {}
+      }
+    }
+  }
+}
