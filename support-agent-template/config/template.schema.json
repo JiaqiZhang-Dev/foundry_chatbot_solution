@@ -11,7 +11,6 @@
     "parameterContract",
     "compiler",
     "customization",
-    "infrastructure",
     "artifact"
   ],
   "properties": {
@@ -154,26 +153,6 @@
           "binding": {
             "type": "string"
           }
-        }
-      }
-    },
-    "infrastructure": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "path",
-        "deployment",
-        "configuration"
-      ],
-      "properties": {
-        "path": {
-          "type": "string"
-        },
-        "deployment": {
-          "type": "string"
-        },
-        "configuration": {
-          "type": "string"
         }
       }
     },

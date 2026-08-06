@@ -6,8 +6,7 @@
   "required": [
     "schemaVersion",
     "name",
-    "assistant",
-    "deployment"
+    "assistant"
   ],
   "properties": {
     "schemaVersion": {
@@ -209,28 +208,6 @@
           }
         }
       ]
-    },
-    "deployment": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "environment",
-        "location"
-      ],
-      "properties": {
-        "environment": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9-]{1,15}$"
-        },
-        "location": {
-          "type": "string",
-          "minLength": 1
-        },
-        "resourcePrefix": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9-]{2,40}$"
-        }
-      }
     }
   }
 }

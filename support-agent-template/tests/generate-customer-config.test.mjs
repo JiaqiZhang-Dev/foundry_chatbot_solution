@@ -29,7 +29,7 @@ test("generates internal configuration from public parameter values", async () =
   assert.equal(config.assistant.webSearch.contextSize, "medium");
   assert.equal(config.teams.autoReply, true);
   assert.deepEqual(config.teams.channelIds, ["channel-id"]);
-  assert.equal(config.deployment.location, "westus2");
+  assert.equal(config.deployment, undefined);
 });
 
 test("does not require Teams parameters when Teams is disabled", async () => {

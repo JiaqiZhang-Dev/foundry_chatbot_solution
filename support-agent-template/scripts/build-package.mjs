@@ -63,8 +63,7 @@ function createReadme(config, readiness) {
   }
   return `# ${config.assistant.displayName}
 
-Generated from \`support-agent@${readiness.templateVersion}\` for the
-\`${config.deployment.environment}\` environment.
+Generated from \`support-agent@${readiness.templateVersion}\`.
 
 ## Included components
 
@@ -168,7 +167,7 @@ export async function buildCustomerPackage({
     });
   }
 
-  const enabledComponents = rendered.deploymentManifest.enabledComponents;
+  const enabledComponents = rendered.solutionManifest.enabledComponents;
   for (const component of enabledComponents) {
     await copyDirectory(
       join(packageRoot, "components", component),
@@ -200,7 +199,6 @@ export async function buildCustomerPackage({
     description: `${config.assistant.displayName} generated support-agent solution`,
     supportAgentSolution: {
       name: config.name,
-      environment: config.deployment.environment,
       components: enabledComponents,
       readiness: "ready-for-downstream-provisioning",
     },
@@ -217,7 +215,6 @@ export async function buildCustomerPackage({
         name: config.name,
         displayName: config.assistant.displayName,
       },
-      environment: config.deployment,
       components: enabledComponents,
       readiness,
     }),

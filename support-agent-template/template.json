@@ -74,19 +74,12 @@
       "required": false
     }
   ],
-  "infrastructure": {
-    "path": "infra",
-    "deployment": "deployment",
-    "configuration": "config"
-  },
   "artifact": {
     "outputPath": "artifacts",
     "contents": [
       "rendered source components",
-      "Bicep infrastructure",
-      "azure.yaml and deployment hooks",
-      "environment configuration",
-      "deployment manifest"
+      "customer chatbot configuration",
+      "downstream resource requirements"
     ]
   }
 }

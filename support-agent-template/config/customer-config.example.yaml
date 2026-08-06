@@ -29,7 +29,3 @@ teams:
     websiteUrl: https://www.contoso.com
     privacyUrl: https://www.contoso.com/privacy
     termsOfUseUrl: https://www.contoso.com/terms
-
-deployment:
-  environment: dev
-  location: westus2

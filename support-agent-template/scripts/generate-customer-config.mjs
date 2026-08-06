@@ -136,10 +136,6 @@ export async function generateCustomerConfig({
       locale: values.locale,
       timezone: values.timezone,
     },
-    deployment: {
-      environment: "dev",
-      location: "westus2",
-    },
   };
 
   if (values.teamsEnabled) {

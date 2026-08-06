@@ -24,9 +24,6 @@ teams:
     websiteUrl: https://www.fabrikam.com
     privacyUrl: https://www.fabrikam.com/privacy
     termsOfUseUrl: https://www.fabrikam.com/terms
-deployment:
-  environment: dev
-  location: westus2
 `;
 
 async function setup(configuration = validConfiguration) {
@@ -67,7 +64,7 @@ test("renders all enabled component settings from one customer file", async () =
   );
   const result = await renderCustomerConfiguration(paths);
 
-  assert.deepEqual(result.deploymentManifest.enabledComponents, [
+  assert.deepEqual(result.solutionManifest.enabledComponents, [
     "backend",
     "agent",
     "frontend",
@@ -81,6 +78,9 @@ test("renders all enabled component settings from one customer file", async () =
   ]);
   assert.equal(requirements.schemaVersion, "1.0");
   assert.equal(requirements.provisioningModel, "downstream");
+  assert.equal(requirements.solution.environment, undefined);
+  assert.equal(requirements.solution.location, undefined);
+  assert.equal(requirements.solution.resourcePrefix, undefined);
   assert.deepEqual(requirements.solution.enabledComponents, [
     "backend",
     "agent",
@@ -97,6 +97,8 @@ test("renders all enabled component settings from one customer file", async () =
     "${output.foundryProjectEndpoint}",
   );
   const logicApp = getResource(requirements, "autoReplyWorkflow").parameters;
+  assert.equal(logicApp.parameters.logicAppName, undefined);
+  assert.equal(logicApp.parameters.logicAppState, undefined);
   assert.deepEqual(logicApp.parameters.teamsChannelIds.value, ["channel-id"]);
   assert.equal(
     logicApp.parameters.backendBaseUrl.value,
@@ -125,13 +127,10 @@ assistant:
   displayName: Fabrikam Help
   instructions: Answer Fabrikam questions.
   model: gpt-4.1-mini
-deployment:
-  environment: dev
-  location: westus2
 `);
   const result = await renderCustomerConfiguration(paths);
 
-  assert.deepEqual(result.deploymentManifest.enabledComponents, [
+  assert.deepEqual(result.solutionManifest.enabledComponents, [
     "backend",
     "agent",
   ]);
@@ -184,9 +183,6 @@ teams:
     websiteUrl: https://www.fabrikam.com
     privacyUrl: https://www.fabrikam.com/privacy
     termsOfUseUrl: https://www.fabrikam.com/terms
-deployment:
-  environment: dev
-  location: westus2
 `);
 
   await assert.rejects(

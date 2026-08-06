@@ -120,7 +120,7 @@ Bicep, Terraform, `azd`, a portal service, or another deployment engine.
 
 | File | Purpose |
 | --- | --- |
-| `solution.json` | Template version, environment, enabled components, and readiness |
+| `solution.json` | Template version, customer identity, enabled components, and readiness |
 | `config/generated/resource-requirements.json` | Complete generated deployment contract: solution choices, logical resources, access, outputs, and component configuration |
 
 ### Provisioning sequence
@@ -141,6 +141,10 @@ The schema remains in the published template package at
 generated customer solution. Schema validation is an optional defensive
 integration check for the provisioner. It is not a customer responsibility.
 Fail deployment when an output is missing or an unresolved token remains.
+
+Environment, region, and physical resource names are intentionally absent from
+the customer configuration and generated contract. The downstream provisioner
+selects them according to its own deployment context and policies.
 
 Do not commit resolved files containing credentials or connection strings.
 Keep them in the deployment workspace or secret store.

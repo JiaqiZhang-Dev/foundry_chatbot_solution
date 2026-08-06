@@ -138,12 +138,6 @@ function getOutputPath(config, requestedOutput) {
   );
 }
 
-function getDefaultResourcePrefix(config) {
-  return `${config.name}-${config.deployment.environment}`
-    .slice(0, 41)
-    .replace(/-+$/, "");
-}
-
 function buildAppConfiguration(config) {
   const webSearch = config.assistant.webSearch;
   const settings = {
@@ -231,12 +225,6 @@ function buildLogicAppParameters(config) {
       "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     contentVersion: "1.0.0.0",
     parameters: {
-      logicAppName: {
-        value: `${config.deployment.resourcePrefix}-logicapp`,
-      },
-      logicAppState: {
-        value: "Disabled",
-      },
       teamsGroupId: { value: config.teams.teamId },
       teamsChannelIds: { value: config.teams.channelIds },
       backendBaseUrl: { value: outputBinding("backendBaseUrl") },
@@ -465,9 +453,6 @@ function buildResourceRequirements(config, enabledComponents) {
     provisioningModel: "downstream",
     solution: {
       name: config.name,
-      environment: config.deployment.environment,
-      location: config.deployment.location,
-      resourcePrefix: config.deployment.resourcePrefix,
       enabledComponents,
     },
     resources,
@@ -493,8 +478,6 @@ export async function renderCustomerConfiguration({
   }
   const normalizedConfig = validation.config;
 
-  normalizedConfig.deployment.resourcePrefix ??=
-    getDefaultResourcePrefix(normalizedConfig);
   const target = getOutputPath(normalizedConfig, outputPath);
   await rm(target, { recursive: true, force: true });
   await mkdir(target, { recursive: true });
@@ -507,12 +490,10 @@ export async function renderCustomerConfiguration({
     enabledComponents.push("logic-app");
   }
 
-  const deploymentManifest = {
+  const solutionManifest = {
     schemaVersion: "1.0",
     template: "support-agent",
     solutionName: normalizedConfig.name,
-    environment: normalizedConfig.deployment.environment,
-    location: normalizedConfig.deployment.location,
     enabledComponents,
     bindingSyntax: "${output.<infrastructure-output>}",
   };
@@ -522,7 +503,7 @@ export async function renderCustomerConfiguration({
     buildResourceRequirements(normalizedConfig, enabledComponents),
   );
 
-  return { config: normalizedConfig, outputPath: target, deploymentManifest };
+  return { config: normalizedConfig, outputPath: target, solutionManifest };
 }
 
 function parseArguments(args) {

@@ -33,9 +33,6 @@ teams:
     websiteUrl: https://www.northwind.example
     privacyUrl: https://www.northwind.example/privacy
     termsOfUseUrl: https://www.northwind.example/terms
-deployment:
-  environment: dev
-  location: westus2
 `,
     "utf8",
   );
@@ -84,5 +81,9 @@ deployment:
     ),
     "Answer Northwind questions.\n",
   );
+  const solution = JSON.parse(
+    await readFile(join(result.packageDirectory, "solution.json"), "utf8"),
+  );
+  assert.equal(solution.environment, undefined);
   assert.equal(result.readiness.readyForDownstreamProvisioning, true);
 });
