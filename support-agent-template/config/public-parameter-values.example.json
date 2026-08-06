@@ -10,11 +10,6 @@
     "https://github.com/contoso/docs"
   ],
   "teamsEnabled": true,
-  "teamsAutoReply": true,
-  "teamsTeamId": "<teams-group-id>",
-  "teamsChannelIds": [
-    "<teams-channel-id>"
-  ],
   "teamsShortName": "Contoso Support",
   "teamsFullName": "Contoso Support Agent",
   "teamsShortDescription": "Ask questions about Contoso products.",
@@ -23,6 +18,9 @@
   "developerWebsiteUrl": "https://www.contoso.com",
   "privacyUrl": "https://www.contoso.com/privacy",
   "termsOfUseUrl": "https://www.contoso.com/terms",
-  "environment": "dev",
-  "location": "westus2"
+  "teamsAutoReply": true,
+  "teamsTeamId": "<teams-group-id>",
+  "teamsChannelIds": [
+    "<teams-channel-id>"
+  ]
 }

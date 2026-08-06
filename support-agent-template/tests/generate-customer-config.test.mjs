@@ -8,7 +8,6 @@ const requiredValues = {
   assistantDisplayName: "Contoso Support",
   agentInstructions: "Answer Contoso questions.",
   modelDeployment: "gpt-4.1-mini",
-  environment: "dev",
 };
 
 test("generates internal configuration from public parameter values", async () => {

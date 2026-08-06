@@ -105,14 +105,27 @@ async function parameters(args) {
     return;
   }
   console.log(`Customer parameters for ${contract.template}:\n`);
-  for (const parameter of contract.parameters) {
-    console.log(
-      `${parameter.name} (${parameter.type}; ${parameterRequirement(parameter)})`,
+  const groups = contract.groups ?? [
+    { id: undefined, label: "Parameters" },
+  ];
+  for (const group of groups) {
+    const parameters = contract.parameters.filter(
+      (parameter) => parameter.group === group.id,
     );
-    console.log(`  ${parameter.label}${parameter.description ? `: ${parameter.description}` : ""}`);
-    if (parameter.choices) {
-      console.log(`  choices: ${parameter.choices.join(", ")}`);
+    if (parameters.length === 0) {
+      continue;
     }
+    console.log(`${group.label}:`);
+    for (const parameter of parameters) {
+      console.log(
+        `  ${parameter.name} (${parameter.type}; ${parameterRequirement(parameter)})`,
+      );
+      console.log(`    ${parameter.label}${parameter.description ? `: ${parameter.description}` : ""}`);
+      if (parameter.choices) {
+        console.log(`    choices: ${parameter.choices.join(", ")}`);
+      }
+    }
+    console.log();
   }
 }
 

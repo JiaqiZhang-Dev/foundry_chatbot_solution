@@ -21,6 +21,8 @@ test("CLI configures and generates a solution from public parameters", async () 
   const outputPath = join(root, "solution");
 
   const parameterHelp = await execute(process.execPath, [cliPath, "parameters"]);
+  assert.match(parameterHelp.stdout, /Foundry hosted agent:/);
+  assert.match(parameterHelp.stdout, /Channel auto-reply \(Logic App\):/);
   assert.match(parameterHelp.stdout, /solutionName \(string; required\)/);
   assert.match(
     parameterHelp.stdout,

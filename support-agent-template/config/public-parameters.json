@@ -1,9 +1,28 @@
 {
   "schemaVersion": "1.0",
   "template": "support-agent",
+  "groups": [
+    {
+      "id": "solution",
+      "label": "Solution"
+    },
+    {
+      "id": "agent",
+      "label": "Foundry hosted agent"
+    },
+    {
+      "id": "teams",
+      "label": "Microsoft Teams"
+    },
+    {
+      "id": "autoReply",
+      "label": "Channel auto-reply (Logic App)"
+    }
+  ],
   "parameters": [
     {
       "name": "solutionName",
+      "group": "solution",
       "type": "string",
       "label": "Solution name",
       "description": "Lowercase identifier used for the generated solution.",
@@ -12,6 +31,7 @@
     },
     {
       "name": "assistantDisplayName",
+      "group": "agent",
       "type": "string",
       "label": "Assistant display name",
       "required": true,
@@ -19,6 +39,7 @@
     },
     {
       "name": "agentInstructions",
+      "group": "agent",
       "type": "multiline-string",
       "label": "Agent instructions",
       "description": "Defines assistant behavior, boundaries, and response style.",
@@ -27,24 +48,28 @@
     },
     {
       "name": "modelDeployment",
+      "group": "agent",
       "type": "model-deployment",
       "label": "Model deployment",
       "required": true
     },
     {
       "name": "assistantScope",
+      "group": "agent",
       "type": "string",
       "label": "Support scope",
       "default": "the configured business support domain"
     },
     {
       "name": "webSearchEnabled",
+      "group": "agent",
       "type": "boolean",
       "label": "Enable public web search",
       "default": true
     },
     {
       "name": "webSearchContextSize",
+      "group": "agent",
       "type": "choice",
       "label": "Web search context size",
       "choices": [
@@ -59,6 +84,7 @@
     },
     {
       "name": "knowledgeSources",
+      "group": "agent",
       "type": "url-list",
       "label": "Preferred public sources",
       "default": [],
@@ -68,12 +94,14 @@
     },
     {
       "name": "teamsEnabled",
+      "group": "teams",
       "type": "boolean",
       "label": "Enable Microsoft Teams",
       "default": false
     },
     {
       "name": "teamsAutoReply",
+      "group": "autoReply",
       "type": "boolean",
       "label": "Enable channel auto-reply",
       "default": false,
@@ -83,6 +111,7 @@
     },
     {
       "name": "teamsTeamId",
+      "group": "autoReply",
       "type": "string",
       "label": "Team ID",
       "requiredWhen": {
@@ -94,6 +123,7 @@
     },
     {
       "name": "teamsChannelIds",
+      "group": "autoReply",
       "type": "string-list",
       "label": "Channel IDs",
       "minItems": 1,
@@ -106,6 +136,7 @@
     },
     {
       "name": "teamsShortName",
+      "group": "teams",
       "type": "string",
       "label": "Teams short name",
       "maxLength": 30,
@@ -115,6 +146,7 @@
     },
     {
       "name": "teamsFullName",
+      "group": "teams",
       "type": "string",
       "label": "Teams full name",
       "maxLength": 100,
@@ -124,6 +156,7 @@
     },
     {
       "name": "teamsShortDescription",
+      "group": "teams",
       "type": "string",
       "label": "Teams short description",
       "maxLength": 80,
@@ -133,6 +166,7 @@
     },
     {
       "name": "teamsFullDescription",
+      "group": "teams",
       "type": "multiline-string",
       "label": "Teams full description",
       "maxLength": 4000,
@@ -142,6 +176,7 @@
     },
     {
       "name": "developerName",
+      "group": "teams",
       "type": "string",
       "label": "Developer name",
       "requiredWhen": {
@@ -153,6 +188,7 @@
     },
     {
       "name": "developerWebsiteUrl",
+      "group": "teams",
       "type": "url",
       "label": "Developer website",
       "requiredWhen": {
@@ -164,6 +200,7 @@
     },
     {
       "name": "privacyUrl",
+      "group": "teams",
       "type": "url",
       "label": "Privacy URL",
       "requiredWhen": {
@@ -175,6 +212,7 @@
     },
     {
       "name": "termsOfUseUrl",
+      "group": "teams",
       "type": "url",
       "label": "Terms of use URL",
       "requiredWhen": {
@@ -186,6 +224,7 @@
     },
     {
       "name": "locale",
+      "group": "teams",
       "type": "string",
       "label": "Default locale",
       "default": "en-US",
@@ -195,32 +234,13 @@
     },
     {
       "name": "timezone",
+      "group": "autoReply",
       "type": "string",
       "label": "Default timezone",
       "default": "UTC",
       "visibleWhen": {
         "teamsEnabled": true
       }
-    },
-    {
-      "name": "environment",
-      "type": "string",
-      "label": "Environment",
-      "required": true,
-      "default": "dev",
-      "pattern": "^[a-z][a-z0-9-]{1,15}$"
-    },
-    {
-      "name": "location",
-      "type": "azure-location",
-      "label": "Azure region",
-      "default": "westus2"
-    },
-    {
-      "name": "resourcePrefix",
-      "type": "string",
-      "label": "Resource prefix",
-      "pattern": "^[a-z][a-z0-9-]{2,40}$"
     }
   ]
 }

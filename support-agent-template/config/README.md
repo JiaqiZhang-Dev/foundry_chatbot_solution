@@ -1,15 +1,17 @@
 # Configuration
 
-This directory contains the contracts that separate:
+This directory contains the customer and generated configuration contracts.
+Customer settings are grouped by the component they configure:
 
-- Customer customization, such as assistant name and instructions.
-- Platform deployment context, such as subscription, region, and environment.
-- External bindings, such as public knowledge-source hints.
-- Generated resource outputs, endpoints, identities, and connection names.
-- Seed data for App Configuration, Storage, and other runtime services.
+- **Foundry hosted agent**: model, instructions, scope, and Web Search.
+- **Microsoft Teams**: bot and app-package settings.
+- **Channel auto-reply (Logic App)**: monitored team, channels, and timezone.
 
-Customers edit one file matching `customer-config.schema.json`; they do not
-edit component environment variables or Logic App ARM parameters.
+The public parameter names remain flat so a PaaS can render them directly as
+form fields. The parameter catalog's `groups` and each parameter's `group`
+organize those fields without changing the customer values JSON shape.
+Deployment placement and final resource naming are downstream provisioner
+concerns and are not customer-facing chatbot capabilities.
 
 Render an example:
 

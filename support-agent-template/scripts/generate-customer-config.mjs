@@ -137,11 +137,10 @@ export async function generateCustomerConfig({
       timezone: values.timezone,
     },
     deployment: {
-      environment: values.environment,
-      location: values.location,
+      environment: "dev",
+      location: "westus2",
     },
   };
-  optional(config.deployment, "resourcePrefix", values.resourcePrefix);
 
   if (values.teamsEnabled) {
     optional(config.teams, "shortName", values.teamsShortName);

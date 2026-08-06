@@ -100,15 +100,15 @@ grounding, Microsoft Teams, and selected-channel auto-reply:
     "https://www.contoso.com/support"
   ],
   "teamsEnabled": true,
+  "developerName": "Contoso",
+  "developerWebsiteUrl": "https://www.contoso.com",
+  "privacyUrl": "https://www.contoso.com/privacy",
+  "termsOfUseUrl": "https://www.contoso.com/terms",
   "teamsAutoReply": true,
   "teamsTeamId": "<teams-group-id>",
   "teamsChannelIds": [
     "<support-channel-id>"
-  ],
-  "developerName": "Contoso",
-  "developerWebsiteUrl": "https://www.contoso.com",
-  "privacyUrl": "https://www.contoso.com/privacy",
-  "termsOfUseUrl": "https://www.contoso.com/terms"
+  ]
 }
 ```
 
@@ -139,23 +139,20 @@ edit, or validate its internal files.
 
 ## Settings
 
-### Solution and assistant
+### Solution
 
 | JSON name | Required | Default or constraint | Purpose |
 | --- | --- | --- | --- |
 | `solutionName` | Yes | Lowercase, 3-31 characters | Generated solution identifier |
+
+### Foundry hosted agent
+
+| JSON name | Required | Default or constraint | Purpose |
+| --- | --- | --- | --- |
 | `assistantDisplayName` | Yes | Maximum 100 characters | User-visible assistant name |
 | `agentInstructions` | Yes | Maximum 9,000 characters | Behavior, boundaries, and response style |
 | `modelDeployment` | Yes | Existing model deployment name | Model used by the hosted agent |
 | `assistantScope` | No | `the configured business support domain` | Business domain the assistant supports |
-| `environment` | Yes | `dev` | Deployment environment name |
-| `location` | No | `westus2` | Deployment region |
-| `resourcePrefix` | No | Lowercase, 3-41 characters | Optional Azure resource-name prefix |
-
-### Public web grounding
-
-| JSON name | Required | Default or choices | Purpose |
-| --- | --- | --- | --- |
 | `webSearchEnabled` | No | `true` | Enable Foundry Web Search |
 | `webSearchContextSize` | No | `medium`; `low`, `medium`, or `high` | Search context size |
 | `knowledgeSources` | No | `[]` | Preferred public HTTPS source URLs |
@@ -169,9 +166,6 @@ other public pages.
 | JSON name | Required | Default or condition | Purpose |
 | --- | --- | --- | --- |
 | `teamsEnabled` | No | `false` | Include the Teams chatbot |
-| `teamsAutoReply` | No | `false`; requires Teams | Reply automatically in selected channels |
-| `teamsTeamId` | With auto-reply | Team ID | Team monitored for messages |
-| `teamsChannelIds` | With auto-reply | At least one channel ID | Channels monitored for messages |
 | `teamsShortName` | No | Maximum 30 characters | Short Teams app name |
 | `teamsFullName` | No | Maximum 100 characters | Full Teams app name |
 | `teamsShortDescription` | No | Maximum 80 characters | Short Teams app description |
@@ -181,6 +175,14 @@ other public pages.
 | `privacyUrl` | With Teams | HTTPS URL | Privacy statement |
 | `termsOfUseUrl` | With Teams | HTTPS URL | Terms of use |
 | `locale` | No | `en-US` | Default Teams locale |
+
+### Channel auto-reply (Logic App)
+
+| JSON name | Required | Default or condition | Purpose |
+| --- | --- | --- | --- |
+| `teamsAutoReply` | No | `false`; requires Teams | Reply automatically in selected channels |
+| `teamsTeamId` | With auto-reply | Team ID | Team monitored for messages |
+| `teamsChannelIds` | With auto-reply | At least one channel ID | Channels monitored for messages |
 | `timezone` | No | `UTC` | Default operational timezone |
 
 Example Teams settings:
