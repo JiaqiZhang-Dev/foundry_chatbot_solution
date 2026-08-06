@@ -7,7 +7,8 @@ backend. Microsoft Teams and channel auto-reply are optional.
 ## Requirements
 
 - Node.js 22 or later.
-- npm access to the registry containing this package.
+- Git.
+- npm.
 - A PaaS or downstream provisioning service that supports the generated
   solution package.
 
@@ -15,16 +16,30 @@ You do not need an Azure sign-in to generate the solution.
 
 ## Quick start
 
-### 1. Discover the available settings
+The npm package is not published yet. Build it locally from this repository.
+
+### 1. Build the template package
 
 ```powershell
-npx @azure-sdk/support-agent-template@0.1.0 parameters
+git clone https://github.com/JiaqiZhang-Dev/foundry_chatbot_solution.git
+Set-Location foundry_chatbot_solution\support-agent-template
+npm ci
+$templatePackage = npm pack --silent | Select-Object -Last 1
+```
+
+This creates `azure-sdk-support-agent-template-0.1.0.tgz` in the current
+directory. You do not need to modify or build the component source projects.
+
+### 2. Discover the available settings
+
+```powershell
+npx --yes --package ".\$templatePackage" support-agent-template parameters
 ```
 
 This command shows every setting's JSON name, type, requirement, default,
 description, and allowed choices.
 
-### 2. Create your configuration
+### 3. Create your configuration
 
 Create `customer-parameters.json`. This is the smallest useful configuration:
 
@@ -39,10 +54,10 @@ Create `customer-parameters.json`. This is the smallest useful configuration:
 }
 ```
 
-### 3. Generate your solution
+### 4. Generate your solution
 
 ```powershell
-npx @azure-sdk/support-agent-template@0.1.0 generate `
+npx --yes --package ".\$templatePackage" support-agent-template generate `
   --parameters .\customer-parameters.json `
   --output .\contoso-support
 ```
@@ -53,7 +68,7 @@ The command validates your settings and creates:
 - `contoso-support\support-agent-contoso-support-0.1.0.tgz`: the distributable
   solution archive.
 
-### 4. Send the solution for provisioning
+### 5. Send the solution for provisioning
 
 Give the generated `.tgz` to your PaaS or downstream provisioning service. If
 you generated the solution inside a PaaS portal, this handoff may happen
@@ -138,10 +153,21 @@ To enable channel auto-reply, also set:
 To save the complete machine-readable setting definition:
 
 ```powershell
-npx @azure-sdk/support-agent-template@0.1.0 parameters `
+npx --yes --package ".\$templatePackage" support-agent-template parameters `
   --output .\support-agent-parameters.json
 ```
 
 Infrastructure endpoints, resource IDs, identities, credentials, scopes,
 connection strings, and role assignments are not customer settings. The
 provisioning service creates and supplies them.
+
+## After the package is published
+
+Once the package is available from an npm registry, cloning and `npm pack` are
+no longer required. Run it directly:
+
+```powershell
+npx @azure-sdk/support-agent-template@0.1.0 generate `
+  --parameters .\customer-parameters.json `
+  --output .\contoso-support
+```
