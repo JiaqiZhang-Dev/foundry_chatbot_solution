@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -59,6 +59,12 @@ function assertAllBindingsHaveProducers(requirements) {
 
 test("renders all enabled component settings from one customer file", async () => {
   const paths = await setup();
+  await mkdir(paths.outputPath);
+  await writeFile(
+    join(paths.outputPath, "stale-configuration.json"),
+    "{}",
+    "utf8",
+  );
   const result = await renderCustomerConfiguration(paths);
 
   assert.deepEqual(result.deploymentManifest.enabledComponents, [

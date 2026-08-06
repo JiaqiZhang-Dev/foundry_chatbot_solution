@@ -496,6 +496,7 @@ export async function renderCustomerConfiguration({
   normalizedConfig.deployment.resourcePrefix ??=
     getDefaultResourcePrefix(normalizedConfig);
   const target = getOutputPath(normalizedConfig, outputPath);
+  await rm(target, { recursive: true, force: true });
   await mkdir(target, { recursive: true });
 
   const enabledComponents = ["backend", "agent"];
@@ -516,20 +517,6 @@ export async function renderCustomerConfiguration({
     bindingSyntax: "${output.<infrastructure-output>}",
   };
 
-  const generatedFileNames = [
-    "customer-config.json",
-    "deployment-manifest.json",
-    "deployment.parameters.json",
-    "app-configuration.json",
-    "runtime-settings.json",
-    "agent-instructions.md",
-    "teams-manifest.json",
-    "logic-app.parameters.json",
-    "resource-requirements.json",
-  ];
-  await Promise.all(
-    generatedFileNames.map((name) => rm(join(target, name), { force: true })),
-  );
   await writeJson(
     join(target, "resource-requirements.json"),
     buildResourceRequirements(normalizedConfig, enabledComponents),

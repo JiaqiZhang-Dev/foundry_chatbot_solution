@@ -17,6 +17,7 @@ Render an example:
 npm run render -- --config config/customer-config.example.yaml
 ```
 
-The command writes a deterministic configuration bundle under
-`artifacts/<name>/`. Values written as `${output.<name>}` are supplied by Bicep
-and deployment hooks after provisioning.
+The command recreates `artifacts/<name>/` with one generated file:
+`resource-requirements.json`. It contains all provisioning and component
+configuration. Values written as `${output.<name>}` are supplied by the
+downstream provisioner after provisioning.
