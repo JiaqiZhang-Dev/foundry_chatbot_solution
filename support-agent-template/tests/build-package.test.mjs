@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
-import { access, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdtemp,
+  readFile,
+  readdir,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -59,6 +65,10 @@ deployment:
       "generated",
       "resource-requirements.json",
     ),
+  );
+  assert.deepEqual(
+    await readdir(join(result.packageDirectory, "config", "generated")),
+    ["resource-requirements.json"],
   );
   await assert.rejects(access(join(result.packageDirectory, "infra")));
   await assert.rejects(access(join(result.packageDirectory, "deployment")));

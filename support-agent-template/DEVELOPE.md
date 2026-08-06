@@ -121,10 +121,7 @@ Bicep, Terraform, `azd`, a portal service, or another deployment engine.
 | File | Purpose |
 | --- | --- |
 | `solution.json` | Template version, environment, enabled components, and readiness |
-| `config/generated/resource-requirements.json` | Logical resources, capabilities, access, sources, and required outputs |
-| `config/generated/deployment.parameters.json` | Region, environment, and enabled features |
-| `config/generated/app-configuration.json` | Shared application configuration values |
-| `config/generated/runtime-settings.json` | Per-component environment variables |
+| `config/generated/resource-requirements.json` | Complete generated deployment contract: solution choices, logical resources, access, outputs, and component configuration |
 
 ### Provisioning sequence
 
@@ -135,10 +132,9 @@ Bicep, Terraform, `azd`, a portal service, or another deployment engine.
 4. Apply each `resources[].access` entry after its resource and principal exist.
 5. Complete resources marked `authorization: interactive`.
 6. Resolve every `${output.<name>}` token in JSON values and property names.
-7. Materialize `outputBindings.derivedOutputs`.
-8. Seed App Configuration and inject runtime settings.
-9. Build and deploy enabled component sources in dependency order.
-10. Run readiness checks before enabling the Logic App or production traffic.
+7. Apply each resource's embedded configuration.
+8. Build and deploy enabled component sources in dependency order.
+9. Run readiness checks before enabling the Logic App or production traffic.
 
 The schema remains in the published template package at
 `config/resource-requirements.schema.json`; it is not copied into each
@@ -151,19 +147,20 @@ Keep them in the deployment workspace or secret store.
 
 ### Component configuration
 
-- **App Configuration:** Resolve `app-configuration.json`; give both agent and
-  backend `AZURE_APPCONFIG_ENDPOINT`. Set backend `AZURE_CLIENT_ID` to its
-  user-assigned identity client ID. Do not set it for the hosted agent, which
-  authenticates with its own runtime identity.
-- **Runtime settings:** Apply each top-level object in `runtime-settings.json`
-  to the corresponding component host.
+- **App Configuration:** Seed
+  `runtimeConfiguration.configuration.values`. Give both agent and backend
+  `AZURE_APPCONFIG_ENDPOINT`. Set backend `AZURE_CLIENT_ID` to its
+  user-assigned identity client ID. Do not set it for the hosted agent.
+- **Runtime settings:** Apply each compute resource's
+  `configuration.runtimeSettings` to that component host.
 - **Agent instructions:** The generated instruction is copied to
   `components/agent/instruction.md`; `AGENT_INSTRUCTIONS` may override it.
-- **Teams:** Resolve `teams-manifest.json`, replace matching manifest
-  placeholders, include both icons, validate the app package, and register it.
-- **Logic App:** Authorize the Teams connection, resolve
-  `logic-app.parameters.json`, deploy the workflow disabled, then enable it
-  after dependency checks pass.
+- **Teams:** Use `teamsApplication.configuration.manifestValues` to replace
+  matching manifest placeholders, include both icons, validate the app package,
+  and register it.
+- **Logic App:** Authorize the Teams connection and deploy
+  `autoReplyWorkflow.source` with `autoReplyWorkflow.parameters`. Keep the
+  workflow disabled until dependency checks pass.
 
 ### Deployment order and readiness
 

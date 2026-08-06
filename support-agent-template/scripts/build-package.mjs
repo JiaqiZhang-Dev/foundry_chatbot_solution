@@ -72,9 +72,12 @@ ${components.map((component) => `- \`components/${component}\``).join("\n")}
 
 ## Configuration
 
-Normalized customer configuration and generated runtime bindings are under
-\`config/generated/\`. Values in the form
-\`\${output.<infrastructure-output>}\` are resolved after provisioning.
+The complete generated deployment contract is
+\`config/generated/resource-requirements.json\`. It contains the solution
+metadata, logical resources, App Configuration values, component runtime
+settings, optional Teams manifest values, and optional Logic App parameters.
+Values in the form \`\${output.<infrastructure-output>}\` are resolved after
+provisioning.
 
 ## Provisioning
 

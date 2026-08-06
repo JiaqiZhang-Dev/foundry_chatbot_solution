@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -41,25 +41,20 @@ async function readJson(path) {
   return JSON.parse(await readFile(path, "utf8"));
 }
 
-function assertAllBindingsHaveProducers(outputPath, requirements) {
+function getResource(requirements, id) {
+  return requirements.resources.find((resource) => resource.id === id);
+}
+
+function assertAllBindingsHaveProducers(requirements) {
   const produced = new Set(
     requirements.resources.flatMap((resource) => resource.produces ?? []),
   );
-  for (const name of Object.keys(
-    requirements.outputBindings.derivedOutputs ?? {},
-  )) {
-    produced.add(name);
+  const content = JSON.stringify(requirements);
+  for (const match of content.matchAll(/\$\{output\.([^}]+)\}/g)) {
+    if (match[1] !== "<name>") {
+      assert.ok(produced.has(match[1]), `No resource produces ${match[1]}`);
+    }
   }
-  return Promise.all(
-    Object.values(requirements.outputBindings.consumers)
-      .filter(Boolean)
-      .map(async (consumer) => {
-        const content = await readFile(join(outputPath, consumer.split("/").at(-1)), "utf8");
-        for (const match of content.matchAll(/\$\{output\.([^}]+)\}/g)) {
-          assert.ok(produced.has(match[1]), `No resource produces ${match[1]}`);
-        }
-      }),
-  );
 }
 
 test("renders all enabled component settings from one customer file", async () => {
@@ -72,41 +67,48 @@ test("renders all enabled component settings from one customer file", async () =
     "frontend",
     "logic-app",
   ]);
-  const appConfiguration = await readJson(
-    join(paths.outputPath, "app-configuration.json"),
+  const requirements = await readJson(
+    join(paths.outputPath, "resource-requirements.json"),
   );
+  assert.deepEqual(await readdir(paths.outputPath), [
+    "resource-requirements.json",
+  ]);
+  assert.equal(requirements.schemaVersion, "1.0");
+  assert.equal(requirements.provisioningModel, "downstream");
+  assert.deepEqual(requirements.solution.enabledComponents, [
+    "backend",
+    "agent",
+    "frontend",
+    "logic-app",
+  ]);
+  const appConfiguration = getResource(
+    requirements,
+    "runtimeConfiguration",
+  ).configuration.values;
   assert.equal(appConfiguration.ASSISTANT_NAME, "Fabrikam Help");
   assert.equal(
     appConfiguration.AI_FOUNDRY_PROJECT_ENDPOINT,
     "${output.foundryProjectEndpoint}",
   );
-  const logicApp = await readJson(
-    join(paths.outputPath, "logic-app.parameters.json"),
-  );
+  const logicApp = getResource(requirements, "autoReplyWorkflow").parameters;
   assert.deepEqual(logicApp.parameters.teamsChannelIds.value, ["channel-id"]);
   assert.equal(
     logicApp.parameters.backendBaseUrl.value,
     "${output.backendBaseUrl}",
   );
   assert.equal(
-    await readFile(join(paths.outputPath, "agent-instructions.md"), "utf8"),
-    "Answer Fabrikam questions.\n",
+    appConfiguration.AGENT_INSTRUCTIONS,
+    "Answer Fabrikam questions.",
   );
-  const requirements = await readJson(
-    join(paths.outputPath, "resource-requirements.json"),
-  );
-  assert.equal(requirements.provisioningModel, "downstream");
   assert.ok(
     requirements.resources.some((resource) => resource.id === "autoReplyWorkflow"),
   );
-  assert.deepEqual(
-    requirements.outputBindings.derivedOutputs.logicAppUserAssignedIdentities,
-    {
-      "${output.backendIdentityResourceId}": {},
-      "${output.botIdentityResourceId}": {},
-    },
+  assert.equal(
+    getResource(requirements, "teamsApplication").configuration.manifestValues
+      .TEAMS_BOT_SHORT_DISPLAY_NAME,
+    "Fabrikam Help",
   );
-  await assertAllBindingsHaveProducers(paths.outputPath, requirements);
+  assertAllBindingsHaveProducers(requirements);
 });
 
 test("omits Teams artifacts when Teams is disabled", async () => {
@@ -127,15 +129,20 @@ deployment:
     "backend",
     "agent",
   ]);
-  const runtime = await readJson(join(paths.outputPath, "runtime-settings.json"));
-  assert.equal(runtime.frontend, undefined);
-  assert.equal(runtime.agent.AZURE_CLIENT_ID, undefined);
-  assert.equal(
-    runtime.agent.AZURE_APPCONFIG_ENDPOINT,
-    "${output.appConfigurationEndpoint}",
-  );
   const requirements = await readJson(
     join(paths.outputPath, "resource-requirements.json"),
+  );
+  assert.deepEqual(await readdir(paths.outputPath), [
+    "resource-requirements.json",
+  ]);
+  const agentRuntime = getResource(
+    requirements,
+    "agentCompute",
+  ).configuration.runtimeSettings;
+  assert.equal(agentRuntime.AZURE_CLIENT_ID, undefined);
+  assert.equal(
+    agentRuntime.AZURE_APPCONFIG_ENDPOINT,
+    "${output.appConfigurationEndpoint}",
   );
   assert.ok(
     !requirements.resources.some((resource) => resource.id === "botIdentity"),
@@ -145,11 +152,14 @@ deployment:
       resource.produces?.includes("agentIdentityClientId"),
     ),
   );
-  const appConfiguration = await readJson(
-    join(paths.outputPath, "app-configuration.json"),
-  );
+  const appConfiguration = getResource(
+    requirements,
+    "runtimeConfiguration",
+  ).configuration.values;
   assert.equal(appConfiguration.TEAMS_BOT_ID, undefined);
-  await assertAllBindingsHaveProducers(paths.outputPath, requirements);
+  assert.equal(getResource(requirements, "frontendCompute"), undefined);
+  assert.equal(getResource(requirements, "autoReplyWorkflow"), undefined);
+  assertAllBindingsHaveProducers(requirements);
 });
 
 test("rejects auto-reply without Teams channel configuration", async () => {

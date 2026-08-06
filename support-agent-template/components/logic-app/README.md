@@ -32,8 +32,9 @@ Both identities must also appear in `userAssignedIdentities`.
 
 Copy `parameters.example.json`, replace every placeholder, and deploy
 `template.json` as a resource-group deployment. Generated customer packages
-provide the same values through `config/generated/logic-app.parameters.json`;
-the downstream provisioner resolves its `${output.*}` bindings.
+embed the same values under the `autoReplyWorkflow` resource's `parameters`
+property in `config/generated/resource-requirements.json`; the downstream
+provisioner resolves its `${output.*}` bindings.
 
 The workflow is deployed disabled by default. Enable it only after backend and
 frontend health checks pass and the Teams API connection is authorized.

@@ -38,18 +38,18 @@ test("compiles public parameter values into a complete customer package", async 
   for (const component of ["agent", "backend", "frontend", "logic-app"]) {
     await access(join(result.packageDirectory, "components", component));
   }
-  const generatedManifest = JSON.parse(
+  const resourceRequirements = JSON.parse(
     await readFile(
       join(
         result.packageDirectory,
         "config",
         "generated",
-        "deployment-manifest.json",
+        "resource-requirements.json",
       ),
       "utf8",
     ),
   );
-  assert.deepEqual(generatedManifest.enabledComponents, [
+  assert.deepEqual(resourceRequirements.solution.enabledComponents, [
     "backend",
     "agent",
     "frontend",

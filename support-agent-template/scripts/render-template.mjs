@@ -262,7 +262,8 @@ function buildLogicAppParameters(config) {
   };
 }
 
-function buildResourceRequirements(config) {
+function buildResourceRequirements(config, enabledComponents) {
+  const runtimeSettings = buildRuntimeSettings(config);
   const resources = [
     {
       id: "foundryProject",
@@ -341,7 +342,7 @@ function buildResourceRequirements(config) {
       kind: "configuration-store",
       requiredBy: ["agent", "backend"],
       configuration: {
-        seedFile: "config/generated/app-configuration.json",
+        values: buildAppConfiguration(config),
       },
       produces: ["appConfigurationEndpoint"],
       azureResourceTypes: ["Microsoft.AppConfiguration/configurationStores"],
@@ -372,6 +373,9 @@ function buildResourceRequirements(config) {
       source: "components/agent",
       containerPort: 8088,
       healthPath: "/",
+      configuration: {
+        runtimeSettings: runtimeSettings.agent,
+      },
       produces: ["agentIdentityPrincipalId"],
     },
     {
@@ -382,6 +386,9 @@ function buildResourceRequirements(config) {
       containerPort: 8089,
       healthPath: "/ping",
       authentication: "managed-identity",
+      configuration: {
+        runtimeSettings: runtimeSettings.backend,
+      },
       produces: [
         "backendBaseUrl",
         "backendAudience",
@@ -402,6 +409,9 @@ function buildResourceRequirements(config) {
         containerPort: 3978,
         healthPath: "/health",
         authentication: "bot-framework",
+        configuration: {
+          runtimeSettings: runtimeSettings.frontend,
+        },
         produces: ["frontendBaseUrl"],
       },
       {
@@ -423,7 +433,7 @@ function buildResourceRequirements(config) {
         kind: "teams-application",
         requiredBy: ["frontend"],
         configuration: {
-          manifestValues: "config/generated/teams-manifest.json",
+          manifestValues: buildTeamsManifest(config),
         },
         produces: ["teamsAppId"],
       },
@@ -444,7 +454,7 @@ function buildResourceRequirements(config) {
         kind: "workflow-host",
         requiredBy: ["logic-app"],
         source: "components/logic-app/template.json",
-        parameters: "config/generated/logic-app.parameters.json",
+        parameters: buildLogicAppParameters(config),
         azureResourceTypes: ["Microsoft.Logic/workflows"],
       },
     );
@@ -453,22 +463,16 @@ function buildResourceRequirements(config) {
   return {
     schemaVersion: "1.0",
     provisioningModel: "downstream",
+    solution: {
+      name: config.name,
+      environment: config.deployment.environment,
+      location: config.deployment.location,
+      resourcePrefix: config.deployment.resourcePrefix,
+      enabledComponents,
+    },
     resources,
     outputBindings: {
       syntax: "${output.<name>}",
-      consumers: {
-        appConfiguration: "config/generated/app-configuration.json",
-        runtimeSettings: "config/generated/runtime-settings.json",
-        logicAppParameters: config.teams.autoReply
-          ? "config/generated/logic-app.parameters.json"
-          : null,
-      },
-      derivedOutputs: {
-        logicAppUserAssignedIdentities: {
-          "${output.backendIdentityResourceId}": {},
-          "${output.botIdentityResourceId}": {},
-        },
-      },
     },
   };
 }
@@ -502,21 +506,6 @@ export async function renderCustomerConfiguration({
     enabledComponents.push("logic-app");
   }
 
-  const generatedFiles = {
-    customerConfig: "customer-config.json",
-    deploymentParameters: "deployment.parameters.json",
-    appConfiguration: "app-configuration.json",
-    runtimeSettings: "runtime-settings.json",
-    agentInstructions: "agent-instructions.md",
-    resourceRequirements: "resource-requirements.json",
-  };
-  if (normalizedConfig.teams.enabled) {
-    generatedFiles.teamsManifest = "teams-manifest.json";
-  }
-  if (normalizedConfig.teams.autoReply) {
-    generatedFiles.logicAppParameters = "logic-app.parameters.json";
-  }
-
   const deploymentManifest = {
     schemaVersion: "1.0",
     template: "support-agent",
@@ -524,60 +513,27 @@ export async function renderCustomerConfiguration({
     environment: normalizedConfig.deployment.environment,
     location: normalizedConfig.deployment.location,
     enabledComponents,
-    generatedFiles,
     bindingSyntax: "${output.<infrastructure-output>}",
   };
-  const deploymentParameters = {
-    solutionName: normalizedConfig.name,
-    environment: normalizedConfig.deployment.environment,
-    location: normalizedConfig.deployment.location,
-    resourcePrefix: normalizedConfig.deployment.resourcePrefix,
-    enableTeams: normalizedConfig.teams.enabled,
-    enableLogicApp: normalizedConfig.teams.autoReply,
-  };
 
-  await Promise.all([
-    writeJson(join(target, generatedFiles.customerConfig), normalizedConfig),
-    writeJson(join(target, "deployment-manifest.json"), deploymentManifest),
-    writeJson(
-      join(target, generatedFiles.deploymentParameters),
-      deploymentParameters,
-    ),
-    writeJson(
-      join(target, generatedFiles.appConfiguration),
-      buildAppConfiguration(normalizedConfig),
-    ),
-    writeJson(
-      join(target, generatedFiles.runtimeSettings),
-      buildRuntimeSettings(normalizedConfig),
-    ),
-    writeJson(
-      join(target, generatedFiles.resourceRequirements),
-      buildResourceRequirements(normalizedConfig),
-    ),
-    writeFile(
-      join(target, generatedFiles.agentInstructions),
-      `${normalizedConfig.assistant.instructions.trim()}\n`,
-      "utf8",
-    ),
-  ]);
-
-  if (normalizedConfig.teams.enabled) {
-    await writeJson(
-      join(target, generatedFiles.teamsManifest),
-      buildTeamsManifest(normalizedConfig),
-    );
-  } else {
-    await rm(join(target, "teams-manifest.json"), { force: true });
-  }
-  if (normalizedConfig.teams.autoReply) {
-    await writeJson(
-      join(target, generatedFiles.logicAppParameters),
-      buildLogicAppParameters(normalizedConfig),
-    );
-  } else {
-    await rm(join(target, "logic-app.parameters.json"), { force: true });
-  }
+  const generatedFileNames = [
+    "customer-config.json",
+    "deployment-manifest.json",
+    "deployment.parameters.json",
+    "app-configuration.json",
+    "runtime-settings.json",
+    "agent-instructions.md",
+    "teams-manifest.json",
+    "logic-app.parameters.json",
+    "resource-requirements.json",
+  ];
+  await Promise.all(
+    generatedFileNames.map((name) => rm(join(target, name), { force: true })),
+  );
+  await writeJson(
+    join(target, "resource-requirements.json"),
+    buildResourceRequirements(normalizedConfig, enabledComponents),
+  );
 
   return { config: normalizedConfig, outputPath: target, deploymentManifest };
 }
