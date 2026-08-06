@@ -8,6 +8,7 @@ backend. Microsoft Teams and channel auto-reply are optional.
 
 - Node.js 22 or later.
 - npm.
+- GitHub CLI (`gh`) or `curl`.
 - A PaaS or downstream provisioning service that supports the generated
   solution package.
 
@@ -15,12 +16,29 @@ You do not need an Azure sign-in to generate the solution.
 
 ## Quick start
 
-The npm package is not published to a registry yet. Download
-`support-agent-template-0.1.0.tgz` from this repository's
-[Releases](https://github.com/JiaqiZhang-Dev/foundry_chatbot_solution/releases)
-page and place it in your working directory.
+The npm package is not published to a registry yet.
 
-### 1. Discover the available settings
+### 1. Download the template package
+
+Prefer GitHub CLI:
+
+```powershell
+gh release download support-agent-template-v0.1.0 `
+  --repo JiaqiZhang-Dev/foundry_chatbot_solution `
+  --pattern support-agent-template-0.1.0.tgz
+```
+
+If GitHub CLI is unavailable, use:
+
+```powershell
+curl.exe -L -O `
+  https://github.com/JiaqiZhang-Dev/foundry_chatbot_solution/releases/download/support-agent-template-v0.1.0/support-agent-template-0.1.0.tgz
+```
+
+Both commands save `support-agent-template-0.1.0.tgz` in the current
+directory.
+
+### 2. Discover the available settings
 
 ```powershell
 npx --yes `
@@ -31,7 +49,7 @@ npx --yes `
 This command shows every setting's JSON name, type, requirement, default,
 description, and allowed choices.
 
-### 2. Create your configuration
+### 3. Create your configuration
 
 Create `customer-parameters.json`. This is the smallest useful configuration:
 
@@ -46,7 +64,7 @@ Create `customer-parameters.json`. This is the smallest useful configuration:
 }
 ```
 
-### 3. Generate your solution
+### 4. Generate your solution
 
 ```powershell
 npx --yes `
@@ -62,7 +80,7 @@ The command validates your settings and creates:
 - `contoso-support\support-agent-contoso-support-0.1.0.tgz`: the distributable
   solution archive.
 
-### 4. Send the solution for provisioning
+### 5. Send the solution for provisioning
 
 Give the generated `.tgz` to your PaaS or downstream provisioning service. If
 you generated the solution inside a PaaS portal, this handoff may happen
