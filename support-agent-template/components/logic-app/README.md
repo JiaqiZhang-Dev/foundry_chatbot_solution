@@ -28,7 +28,7 @@ Bot Framework endpoint using their configured audiences.
 Copy `parameters.example.json`, replace every placeholder, and deploy
 `template.json` as a resource-group deployment. Generated customer packages
 embed the same values under the `autoReplyWorkflow` resource's `parameters`
-property in `config/generated/resource-requirements.json`; the downstream
+property in `config/resource-requirements.json`; the downstream
 provisioner resolves its `${output.*}` bindings.
 
 The workflow is deployed disabled by default. Enable it only after backend and

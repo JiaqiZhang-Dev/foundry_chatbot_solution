@@ -130,7 +130,7 @@ The command validates your settings and creates:
 
 Inside the package, `solution.json` summarizes the enabled chatbot abilities,
 included components, planned service endpoints, and required resource types.
-`config/generated/resource-requirements.json` provides the detailed handoff for
+`config/resource-requirements.json` provides the detailed handoff for
 the downstream provisioner.
 
 ### 5. Send the solution for provisioning

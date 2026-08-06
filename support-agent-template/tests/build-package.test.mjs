@@ -59,12 +59,11 @@ teams:
     join(
       result.packageDirectory,
       "config",
-      "generated",
       "resource-requirements.json",
     ),
   );
   assert.deepEqual(
-    await readdir(join(result.packageDirectory, "config", "generated")),
+    await readdir(join(result.packageDirectory, "config")),
     ["resource-requirements.json"],
   );
   await assert.rejects(access(join(result.packageDirectory, "infra")));

@@ -267,7 +267,7 @@ capabilities, included components, service endpoints, and required resource
 types.
 
 The complete generated deployment contract is
-\`config/generated/resource-requirements.json\`. It contains the solution
+\`config/resource-requirements.json\`. It contains the solution
 metadata, logical resources, App Configuration values, component runtime
 settings, optional Teams manifest values, and optional Logic App parameters.
 Values in the form \`\${output.<infrastructure-output>}\` are resolved after
@@ -276,7 +276,7 @@ provisioning.
 ## Provisioning
 
 This is a provisioner-neutral package. A downstream system reads
-\`config/generated/resource-requirements.json\`, provisions matching resources,
+\`config/resource-requirements.json\`, provisions matching resources,
 resolves the declared \`\${output.*}\` bindings, and deploys the included source.
 `;
 }
@@ -348,7 +348,7 @@ export async function buildCustomerPackage({
 
   const rendered = await renderCustomerConfiguration({
     configPath,
-    outputPath: join(stagingDirectory, "config", "generated"),
+    outputPath: join(stagingDirectory, "config"),
   });
   const config = rendered.config;
   if (!outputPath) {
@@ -385,7 +385,7 @@ export async function buildCustomerPackage({
     templateVersion: templatePackage.version,
     readyForDownstreamProvisioning: true,
     provisioningModel: "downstream",
-    resourceContract: "config/generated/resource-requirements.json",
+    resourceContract: "config/resource-requirements.json",
   };
   const customerPackageJson = {
     name: packageName(config.name),

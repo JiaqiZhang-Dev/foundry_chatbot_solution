@@ -43,7 +43,6 @@ test("compiles public parameter values into a complete customer package", async 
       join(
         result.packageDirectory,
         "config",
-        "generated",
         "resource-requirements.json",
       ),
       "utf8",
@@ -91,7 +90,7 @@ test("compiles public parameter values into a complete customer package", async 
   );
   assert.equal(
     solution.resources.contract,
-    "config/generated/resource-requirements.json",
+    "config/resource-requirements.json",
   );
   assert.ok(
     !solution.resources.planned.some(
