@@ -86,16 +86,29 @@ description, and allowed choices.
 
 ### 3. Create your configuration
 
-Create `customer-parameters.json`. This is the smallest useful configuration:
+Create `customer-parameters.json`. This full-featured example enables public web
+grounding, Microsoft Teams, and selected-channel auto-reply:
 
 ```json
 {
   "solutionName": "contoso-support",
   "assistantDisplayName": "Contoso Support",
-  "agentInstructions": "Answer Contoso product questions clearly and cite useful public sources.",
+  "agentInstructions": "Answer questions about Contoso products clearly and concisely. Prefer configured public documentation and cite useful sources.",
   "modelDeployment": "gpt-4.1-mini",
-  "environment": "dev",
-  "location": "westus2"
+  "webSearchEnabled": true,
+  "knowledgeSources": [
+    "https://www.contoso.com/support"
+  ],
+  "teamsEnabled": true,
+  "teamsAutoReply": true,
+  "teamsTeamId": "<teams-group-id>",
+  "teamsChannelIds": [
+    "<support-channel-id>"
+  ],
+  "developerName": "Contoso",
+  "developerWebsiteUrl": "https://www.contoso.com",
+  "privacyUrl": "https://www.contoso.com/privacy",
+  "termsOfUseUrl": "https://www.contoso.com/terms"
 }
 ```
 
@@ -136,7 +149,7 @@ edit, or validate its internal files.
 | `modelDeployment` | Yes | Existing model deployment name | Model used by the hosted agent |
 | `assistantScope` | No | `the configured business support domain` | Business domain the assistant supports |
 | `environment` | Yes | `dev` | Deployment environment name |
-| `location` | Yes | Azure region name | Deployment region |
+| `location` | No | `westus2` | Deployment region |
 | `resourcePrefix` | No | Lowercase, 3-41 characters | Optional Azure resource-name prefix |
 
 ### Public web grounding

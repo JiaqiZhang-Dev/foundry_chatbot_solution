@@ -214,7 +214,7 @@
       "name": "location",
       "type": "azure-location",
       "label": "Azure region",
-      "required": true
+      "default": "westus2"
     },
     {
       "name": "resourcePrefix",
