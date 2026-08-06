@@ -1,13 +1,12 @@
 # Support Agent Template
 
-`@azure-sdk/support-agent-template@0.1.0` generates a support chatbot solution
+`support-agent-template@0.1.0` generates a support chatbot solution
 from your configuration. Every solution includes a Foundry hosted agent and
 backend. Microsoft Teams and channel auto-reply are optional.
 
 ## Requirements
 
 - Node.js 22 or later.
-- Git.
 - npm.
 - A PaaS or downstream provisioning service that supports the generated
   solution package.
@@ -16,32 +15,23 @@ You do not need an Azure sign-in to generate the solution.
 
 ## Quick start
 
-The npm package is not published yet. Build it locally from this repository.
+The npm package is not published to a registry yet. Download
+`support-agent-template-0.1.0.tgz` from this repository's
+[Releases](https://github.com/JiaqiZhang-Dev/foundry_chatbot_solution/releases)
+page and place it in your working directory.
 
-### 1. Build the template package
-
-```powershell
-git clone https://github.com/JiaqiZhang-Dev/foundry_chatbot_solution.git
-Set-Location foundry_chatbot_solution\support-agent-template
-npm ci
-npm pack
-```
-
-This creates `azure-sdk-support-agent-template-0.1.0.tgz` in the current
-directory. You do not need to modify or build the component source projects.
-
-### 2. Discover the available settings
+### 1. Discover the available settings
 
 ```powershell
 npx --yes `
-  --package .\azure-sdk-support-agent-template-0.1.0.tgz `
+  --package .\support-agent-template-0.1.0.tgz `
   support-agent-template parameters
 ```
 
 This command shows every setting's JSON name, type, requirement, default,
 description, and allowed choices.
 
-### 3. Create your configuration
+### 2. Create your configuration
 
 Create `customer-parameters.json`. This is the smallest useful configuration:
 
@@ -56,11 +46,11 @@ Create `customer-parameters.json`. This is the smallest useful configuration:
 }
 ```
 
-### 4. Generate your solution
+### 3. Generate your solution
 
 ```powershell
 npx --yes `
-  --package .\azure-sdk-support-agent-template-0.1.0.tgz `
+  --package .\support-agent-template-0.1.0.tgz `
   support-agent-template generate `
   --parameters .\customer-parameters.json `
   --output .\contoso-support
@@ -72,7 +62,7 @@ The command validates your settings and creates:
 - `contoso-support\support-agent-contoso-support-0.1.0.tgz`: the distributable
   solution archive.
 
-### 5. Send the solution for provisioning
+### 4. Send the solution for provisioning
 
 Give the generated `.tgz` to your PaaS or downstream provisioning service. If
 you generated the solution inside a PaaS portal, this handoff may happen
@@ -158,7 +148,7 @@ To save the complete machine-readable setting definition:
 
 ```powershell
 npx --yes `
-  --package .\azure-sdk-support-agent-template-0.1.0.tgz `
+  --package .\support-agent-template-0.1.0.tgz `
   support-agent-template parameters `
   --output .\support-agent-parameters.json
 ```
@@ -173,7 +163,7 @@ Once the package is available from an npm registry, cloning and `npm pack` are
 no longer required. Run it directly:
 
 ```powershell
-npx @azure-sdk/support-agent-template@0.1.0 generate `
+npx support-agent-template@0.1.0 generate `
   --parameters .\customer-parameters.json `
   --output .\contoso-support
 ```

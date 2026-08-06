@@ -1,5 +1,5 @@
 {
-  "name": "@azure-sdk/support-agent-template",
+  "name": "support-agent-template",
   "version": "0.1.0",
   "description": "Deployable support chatbot solution template",
   "type": "module",

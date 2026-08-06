@@ -1,6 +1,6 @@
 # Support Agent Template Development
 
-This document is for maintainers of `@azure-sdk/support-agent-template`.
+This document is for maintainers of `support-agent-template`.
 Consumers should follow [README.md](./README.md).
 
 ## Design boundary
@@ -272,9 +272,9 @@ contracts, consumer README, and this developer guide. It must not include
 `node_modules`, virtual environments, build output, Playground logs, tests, or
 generated customer artifacts.
 
-## Publish
+## Create a release
 
-Before publishing:
+Before creating a GitHub Release:
 
 1. Update the version in `package.json` and regenerate `package-lock.json`.
 2. Run `npm ci`, `npm test`, and `npm audit`.
@@ -282,7 +282,8 @@ Before publishing:
 4. Install the packed archive in a temporary consumer project.
 5. Run the installed CLI with the example public parameters and confirm it
    creates both `package/` and the solution `.tgz`.
-6. Publish through the approved package-registry release process.
+6. Create a GitHub Release for the same version and attach
+   `support-agent-template-<version>.tgz` as a release asset.
 
 Do not publish generated customer solutions or resolved infrastructure values
 with the template package.
